@@ -3,13 +3,13 @@ NEMULO - Very Very Simple blog system
 
 This system is designed to create a simple blog.
 
-It does not run on a server. Instead, you execute the program on your local PC,  
-which converts articles written in Markdown format into HTML files using a Python script.  
-These static documents can then be hosted on platforms like Amazon S3.  
-However, this system does not include a built-in mechanism for uploading files to a server.  
+It does not run on a server. Instead, you execute the program on your local PC,
+which converts articles written in Markdown format into HTML files using a Python script.
+These static documents can then be hosted on platforms like Amazon S3.
+However, this system does not include a built-in mechanism for uploading files to a server.
 Users are expected to create their own upload scripts as needed.
 
-Since the output consists only of static files,  
+Since the output consists only of static files,
 it does not include any functionality for user interactions, such as a comment section.
 
 Conversion from Markdown to HTML is done using the `Python-Markdown` library.
@@ -20,7 +20,7 @@ When the program is executed, it performs the following tasks:
 
 * Finds Markdown files that need to be updated.
     * The system compares the modification times of Markdown and HTML files.
-    * If the Markdown file is newer than the HTML file, the Markdown file is processed. 
+    * If the Markdown file is newer than the HTML file, the Markdown file is processed.
 * Gets metadata from Markdown file body and name.
     * Markdown files are located in the `text/src/` directory.
     * Only `.md` files with filenames starting with a YYYYMMDD are processed.
@@ -30,7 +30,7 @@ When the program is executed, it performs the following tasks:
 
 * Saves the converted HTML files in the `text/html/` directory.
     * The filename follows the format `Date_Title.html`.
-    * If `Title` contains space and other unsafe characters, 
+    * If `Title` contains space and other unsafe characters,
         they are replaced with underscores (`_`).
 
 * Updates the top page to include the latest ARTICLE_COUNT articles.
@@ -38,7 +38,7 @@ When the program is executed, it performs the following tasks:
 
 * In addition to the top page, the system generates a JavaScript file (`text/html/articles.js`).
     * This file includes an array of the latest SIDEBAR_COUNT articles.
-    * The JavaScript code is used to render the latest SIDEBAR_COUNT articles 
+    * The JavaScript code is used to render the latest SIDEBAR_COUNT articles
         in the sidebar when the top page and individual article pages are displayed.
     * Each article name serves as a link to its corresponding HTML file.
 """
@@ -71,7 +71,7 @@ def convert_markdown_to_html(content: str) -> dict:
 
 def sanitize_filename(filename: str) -> str:
     """Replace spaces and unsafe characters with underscores."""
-    return re.sub(r'[\\/*?:"<>| ] ', '_', filename)
+    return re.sub(r'[\\/*?:"<>| ]', '_', filename)
 
 def get_article_list(src_path: str, dst_path: str) -> list[str]:
     """Get a list of article files that need to be updated."""
@@ -96,7 +96,12 @@ def get_article_list(src_path: str, dst_path: str) -> list[str]:
     return updated_md_files
 
 
-def generate_article_html(articles: list[dict], src_path: str, dst_path: str, template: str) -> None:
+def generate_article_html(
+    articles: list[dict],
+    src_path: str,
+    dst_path: str,
+    template: str
+) -> None:
     """Generate HTML files from Markdown files."""
     with open(template, "r", encoding="utf-8") as f:
         article_template = Template(f.read())
@@ -141,4 +146,7 @@ def main():
         TEXT_HTML_DIR,
         f"{TEMPLATE_DIR}/{ARTICLE_TEMPLATE}"
     )
-    generate_index_html(TEXT_HTML_DIR, f"{TEMPLATE_DIR}/{TOP_PAGE_TEMPLATE}")
+    generate_index_html(
+        TEXT_HTML_DIR,
+        f"{TEMPLATE_DIR}/{TOP_PAGE_TEMPLATE}"
+    )
