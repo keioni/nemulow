@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head prefix="og: http://ogp.me/ns/article#">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:site_name" content="{{ blog_name }}">
+    <meta property="og:title" content="{{ article_title }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ article_titleurl }}">
+    <meta property="og:description" content="{{ article_description }}">
+    <meta property="og:image" content="{{ article_image }}">
+    <meta property="og:article:author" content="Kei Onimaru">
+    <meta property="og:article:publish_time" content="{{ publish_datetime}}">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="{{ article_url }}">
+    <link rel="preload" href="/img/connected/via.png" as="image">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Electrolize&display=swap" rel="stylesheet">
+    <title>{{ article_title }} - {{ blog_name }}</title>
+</head>
+
+<body>
+    <header>
+        <h1><a href="/">{{ blog_name }}</a></h1>
+        <p><a href="/">{{ blog_description }}</a></p>
+    </header>
+
+    <main>
+    </main>
+
+    <footer>
+        {{ footer }}
+    </footer>
+
+</body>
+</html>
