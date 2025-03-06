@@ -27,7 +27,22 @@
     </header>
 
     <main>
+        <article>
+            <section>
+                <h2>{{ article_title }}</h2>
+                {{ article }}
+            </section>
+        </article>
     </main>
+    
+    <aside>
+        <h2>Recent Articles</h2>
+        <ul>
+            {% for article in recent_articles %}
+            <li><a href="{{ article.url }}">{{ article.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </aside>
 
     <footer>
         {{ footer }}
