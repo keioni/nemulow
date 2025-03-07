@@ -1,23 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 
-<head prefix="og: http://ogp.me/ns/article#">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta property="og:locale" content="ja_JP">
-    <meta property="og:site_name" content="{{ blog_name }}">
-    <meta property="og:title" content="{{ article_title }} - {{ blog_name }}">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{{ article_url }}">
-    <meta property="og:description" content="{{ article_description }}">
-    <meta property="og:image" content="{{ article_image }}">
-    <meta property="og:article:author" content="Kei Onimaru">
-    <meta property="og:article:publish_time" content="{{ publish_datetime }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="canonical" href="{{ article_url }}">
-    <link rel="preload" href="/img/connected/via.png" as="image">
-    <link rel="stylesheet" href="/css/main.css">
-    <title>{{ article_title }} - {{ blog_name }}</title>
+<head>
+    {% include 'text/template/_head.j2' %}
 </head>
 
 <body>
@@ -34,18 +19,13 @@
             </section>
         </article>
     </main>
-    
+
     <aside>
-        <h2>Recent Articles</h2>
-        <ul>
-            {% for article in recent_articles %}
-            <li><a href="{{ article.url }}">{{ article.title }}</a></li>
-            {% endfor %}
-        </ul>
+        {% include 'text/template/_aside.j2' %}
     </aside>
 
     <footer>
-        {{ footer }}
+        {% include 'text/template/_footer.j2' %}
     </footer>
 
 </body>

@@ -1,0 +1,27 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:site_name" content="{{ blog_name }}">
+{% if article %}
+    <meta property="og:title" content="{{ blog_name }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ blog_index_url }}">
+    <meta property="og:description" content="{{ blog_description }}">
+    <meta property="og:image" content="{{ blog_image }}">
+    <meta property="og:article:publish_time" content="{{ publish_datetime }}">
+    <title>{{ blog_name }}</title>
+{% else %}
+    <meta property="og:title" content="{{ article_title }} - {{ blog_name }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ article_url }}">
+    <meta property="og:description" content="{{ article_description }}">
+    <meta property="og:image" content="{{ article_image }}">
+    <title>{{ article_title }} - {{ blog_name }}</title>
+{% endif %}
+    <meta property="og:article:author" content="Kei Onimaru">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="{{ article_url }}">
+    <link rel="preload" href="/img/connected/via.png" as="image">
+    <link rel="stylesheet" href="/css/main.css">
+</head>
