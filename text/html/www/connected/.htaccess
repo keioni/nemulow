@@ -1,0 +1,19 @@
+# for 'Connected via IPv6' image
+<Files "*">
+    FileEtag None
+    Header set Cache-Control no-store
+</Files>
+
+<If "%{REQUEST_URI} == '/img/connected/via.webp'">
+    <If "%{IPV6} == 'on'">
+        RewriteEngine on
+        RewriteRule .* /img/connected/via_ipv6.webp [L]
+    </If>
+</If>
+
+<If "%{REQUEST_URI} == '/img/connected/via.webp'">
+    <If "%{IPV6} == 'on'">
+        RewriteEngine on
+        RewriteRule .* /img/connected/via_ipv6.webp [L]
+    </If>
+</If>
