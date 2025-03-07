@@ -4,20 +4,20 @@
 <meta property="og:site_name" content="{{ blog_name }}">
 {% if article %}
 <meta property="og:type" content="article">
-<meta property="og:url" content="{{ article_url }}">
+<meta property="og:url" content="{{ blog_url }}{{ article_path }}">
 <meta property="og:description" content="{{ article_description }}">
 <meta property="og:image" content="{{ article_image }}">
 <meta property="og:article:publish_time" content="{{ article_publish_datetime }}">
+<meta property="og:article:author" content="Kei Onimaru">
 <title>{{ article_title }} - {{ blog_name }}</title>
 {% else %}
 <meta property="og:type" content="website">
-<meta property="og:url" content="{{ blog_index_url }}">
+<meta property="og:url" content="{{ blog_url }}">
 <meta property="og:description" content="{{ blog_description }}">
 <meta property="og:image" content="{{ blog_image }}">
 <title>{{ blog_name }}</title>
 {% endif %}
-<meta property="og:article:author" content="Kei Onimaru">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="{{ article_url }}">
+<link rel="canonical" href="{{ blog_url }}{{ article_path }}">
 <link rel="preload" href="/img/connected/via.png" as="image">
 <link rel="stylesheet" href="/css/main.css">
