@@ -2,33 +2,36 @@
 <html lang="ja">
 
 <head>
-    {% include 'text/template/_head.j2' %}
+    {% import 'text/template/_head.j2' %}
 </head>
 
 <body>
-    <header>
-        <h1><a href="/">{{ blog_name }}</a></h1>
-        <p><a href="/">{{ blog_description }}</a></p>
-    </header>
+    <div class="container">
+        <header>
+            {% import 'text/template/_header.j2' %}
+        </header>
 
-    <main>
-        <article>
-            {% for article in articles %}
-            <section>
-                <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
-                {{ article }}
+        <main>
+            <section class="articles">
+                {% for article in articles %}
+                <article>
+                    <section>
+                        <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
+                        {{ article }}
+                    </section>
+                </article>
+                {% endfor %}
             </section>
-            {% endfor %}
-        </article>
-    </main>
 
-    <aside>
-        {% include 'text/template/_aside.j2' %}
-    </aside>
+            <aside>
+                {% import 'text/template/_aside.j2' %}
+            </aside>
+        </main>
 
-    <footer>
-        {% include 'text/template/_footer.j2' %}
-    </footer>
-
+        <footer>
+            {% import 'text/template/_footer.j2' %}
+        </footer>
+    </div>
 </body>
+
 </html>
