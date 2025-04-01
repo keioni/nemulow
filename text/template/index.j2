@@ -17,7 +17,9 @@
                 <article>
                     <section>
                         <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
+                        <p class="post-date">{{ article.date }}</p>
                         {{ article }}
+                        {{ article.if_continue }}
                     </section>
                 </article>
                 {% endfor %}

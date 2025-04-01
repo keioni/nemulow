@@ -1,9 +1,13 @@
 body {
-    font-family: "IBM Plex Sans JP", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", "Arial", sans-serif;
-    line-height: 1.6;
+    /* font-family: 'IBM Plex Sans JP', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Arial', sans-serif; */
+    /* font-family: 'IBM Plex Sans JP'; */
+    /* font-family: 'Noto Sans JP'; */
+    /* font-family: 'Hiragino Kaku Gothic ProN'; */
+    /* font-family: 'Meiryo'; */
+    line-height: 1em;
     margin: 0;
     padding: 0;
-    background-color: #f8f9fa;
+    background-color: #f0f0f0;
 }
 
 
@@ -16,7 +20,7 @@ body {
 
 header {
     background: #343a40;
-    color: #ffffff;
+    color: white;
     text-align: center;
     padding: 20px;
     font-size: 1.5em;
@@ -24,6 +28,9 @@ header {
     margin: 0 auto 40px auto;
 }
 
+header p {
+    font-size: 0.5em;
+}
 
 main {
     display: flex;
@@ -34,7 +41,6 @@ main {
     max-width: 1200px;
 }
 
-
 .articles {
     display: flex;
     flex-direction: column;
@@ -44,25 +50,42 @@ main {
 
 }
 
-
 article {
-    background: #ffffff;
+    background: white;
     padding: 20px;
     margin: 10px 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid #ddd;
+    border: 1px solid #d0d0d0;
     border-radius: 12px;
-
 }
 
 article h2 {
-    color: #333;
+    margin-bottom: 0;
+    font-size: 2em;
+}
+
+article a {
+    color: #303030;
+    text-decoration: none;
+}
+
+article a:hover {
+    text-decoration: underline;
+}
+
+article p.post-date {
+    margin-top: 0.75em;
+    margin-bottom: 1.25em;
+    padding-bottom: 0.75em;
+    font-size: 1em;
+    border-bottom: 1px solid;
+    border-block-end-color: #e0e0e0;
 }
 
 article p {
-    color: #555;
+    line-height: 1.6em;
+    font-size: 1.1em;
 }
-
 
 aside {
     flex: 1;
@@ -75,10 +98,15 @@ aside {
     border: none;
 }
 
-aside h3 {
-    color: #333;
+aside a {
+    color: #303030;
+    text-decoration: none;
 }
 
+aside a:visited {
+    color: #a0a0a0;
+    text-decoration: none;
+}
 
 footer {
     background: #343a40;
@@ -106,5 +134,45 @@ footer {
 
     aside {
         margin: 10px 0;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #202020;
+        color: white;
+    }
+
+    article {
+        background-color: #202020;
+        border: 1px solid #606060;
+    }
+
+    article a {
+        color: #e0e0e0;
+    }
+
+    article p {
+        color: #d0d0d0;
+    }
+
+    article p.post-date {
+        border-block-end-color: #404040;
+    }
+
+    aside h2 {
+        color: #e0e0e0;
+    }
+
+    aside a {
+        color: #e0e0e0;
+    }
+
+    aside a:visited {
+        color: #808080;
+    }
+
+    aside a:hover {
+        text-decoration: underline;
     }
 }
