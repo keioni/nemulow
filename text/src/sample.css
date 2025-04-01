@@ -51,12 +51,14 @@ main {
 }
 
 article {
-    background: white;
+    background-color: white;
     padding: 20px;
     margin: 10px 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid #d0d0d0;
     border-radius: 12px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d0d0d0;
 }
 
 article h2 {
@@ -64,7 +66,7 @@ article h2 {
     font-size: 2em;
 }
 
-article a {
+article h2 a {
     color: #303030;
     text-decoration: none;
 }
@@ -83,14 +85,37 @@ article p.post-date {
 }
 
 article p {
+    color: #202020;
     line-height: 1.8em;
     font-size: 1em;
+}
+
+article p a {
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    text-underline-offset: 0.2em;
+    color: #202020;
+}
+
+article p a:visited {
+    color: #b0b0b0;
+}
+
+article p a:hover {
+    color: red;
 }
 
 article p.continue span {
     padding: 0.5em;
     font-size: 0.8em;
-    border: #d0d0d0 1px solid;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d0d0d0;
+}
+
+article p.continue a {
+    color: #808080;
+    text-decoration: none;
 }
 
 aside {
@@ -156,25 +181,48 @@ footer {
 /* @media (prefers-color-scheme: dark) {
     body {
         background-color: #202020;
-        color: white;
+        color: #e0e0e0;
     }
 
     article {
         background-color: #202020;
-        border: 1px solid #a0a0a0;
+        border-color: #a0a0a0;
     }
 
-    article a {
+    article h2 {
+        color: #f0f0f0;
+    }
+    article h2 a {
         color: #f0f0f0;
     }
 
     article p {
-        color: #e0e0e0;
+        color: #d0d0d0;
+    }
+
+    article p a {
+        color: #d0d0d0;
+    }
+
+    article p a:visited {
+        color: #707070;
+    }
+
+    article p a:hover {
+        color: red;
     }
 
     article p.post-date {
         color: #e0e0e0;
         border-block-end-color: #505050;
+    }
+
+    article p.continue span {
+        border-color: #606060;
+    }
+
+    article p.continue a {
+        color: #a0a0a0;
     }
 
     aside h2 {
