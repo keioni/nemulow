@@ -1,9 +1,9 @@
 body {
-    /* font-family: 'IBM Plex Sans JP', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Arial', sans-serif; */
+    /* font-family: 'IBM Plex Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Arial', sans-serif; */
     /* font-family: 'IBM Plex Sans JP'; */
-    /* font-family: 'Noto Sans JP'; */
     /* font-family: 'Hiragino Kaku Gothic ProN'; */
     /* font-family: 'Meiryo'; */
+    /* font-family: sans-serif; */
     line-height: 1em;
     margin: 0;
     padding: 0;
@@ -75,7 +75,7 @@ article a:hover {
 
 article p.post-date {
     margin-top: 0.75em;
-    margin-bottom: 1.25em;
+    margin-bottom: 1.5em;
     padding-bottom: 0.75em;
     font-size: 1em;
     border-bottom: 1px solid;
@@ -145,19 +145,20 @@ footer {
 
     article {
         background-color: #202020;
-        border: 1px solid #606060;
+        border: 1px solid #a0a0a0;
     }
 
     article a {
-        color: #e0e0e0;
+        color: #f0f0f0;
     }
 
     article p {
-        color: #d0d0d0;
+        color: #e0e0e0;
     }
 
     article p.post-date {
-        border-block-end-color: #404040;
+        color: #e0e0e0;
+        border-block-end-color: #505050;
     }
 
     aside h2 {
