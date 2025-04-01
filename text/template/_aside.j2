@@ -1,6 +1,5 @@
 <h2>最近の記事</h2>
-<ul>
-    {% for article in recent_articles %}
-    <li><a href="/{{ article.path }}">{{ article.title }}</a></li>
-    {% endfor %}
+{% for article in recent_articles %}
+<p><a href="/{{ article.path }}">{{ article.title }}</a><span class="list-post-date">{{ article.date }}</span><br>{{ article.title }}</p>
+{% endfor %}
 </ul>
