@@ -67,7 +67,7 @@ aside a {
 
 /*** article card box ***/
 .container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -77,7 +77,7 @@ header {
     background: var(--header-footer-background-color);
     text-align: center;
     padding: 2em 0 2em 0;
-    max-width: 3000px;
+    max-width: 1000px;
     margin: 0 auto 2em auto;
 }
 
@@ -96,7 +96,7 @@ main {
     justify-content: space-between;
     margin: 0;
     padding: 0;
-    max-width: 3000px;
+    max-width: 1000px;
 }
 
 .articles {
@@ -119,6 +119,11 @@ article {
     border-style: solid;
     border-width: 1px;
     border-color: #d0d0d0;
+}
+
+article h2 {
+    font-size: 1.8em;
+    font-weight: normal;
 }
 
 article h2 a {
@@ -168,8 +173,10 @@ aside {
     border: none;
 }
 
-aside div {
-    margin-bottom: 3em;
+aside h2 {
+    font-size: 1.25em;
+    font-weight: normal;
+    margin-bottom: -0.5em;
 }
 
 aside h2.color-switch {
@@ -179,11 +186,12 @@ aside h2.color-switch {
 
 aside ol {
     margin-left: -1em;
+    word-break: break-all;
+    font-size: 0.9em;
+    line-height: 1.25em;
 }
 
 aside li {
-    word-break: break-all;
-    line-height: 1.25em;
     margin-bottom: 0.5em;
 }
 
@@ -203,7 +211,7 @@ footer {
     text-align: center;
     padding: 2em;
     margin: 2em auto 0 auto;
-    max-width: 1200px;
+    max-width: 1000px;
 }
 
 
