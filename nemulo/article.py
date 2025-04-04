@@ -65,7 +65,107 @@ class Article:
         """
         self.filename = filename
 
-    def _decorate(self, raw_content: List[str]) -> List[str]:
+    def open(self):
+        """
+        Open the article file and read its content.
+        """
+        with open(self.filename, 'r', encoding='utf-8') as file:
+            for line in file:
+                self.raw_content.append(line.strip())
+
+    def read(self):
+        """
+        Read the article content and metadata.
+        """
+        self._read_metadata()
+        self._remove_comments()
+        self._read_content()
+
+    def _read_metadata(self):
+        """
+        read metadata are defined in the first lines of the file.
+
+        metadata keys are:
+        - 'title', 'timestamp', 'category', and 'tags'.
+
+        metadata are defined in the following format:
+        name (key) and value are separated by at least one space and tab.
+        for example:
+        title I am a cat
+        timestamp 2025/04/03 12:00
+        category cat
+        tags cat, animal, pet
+
+        timestamp is in ISO format.
+        (timestamp.isoformat() is used to convert the timestamp to ISO format)
+        category is optional.
+        tags are optional.
+
+        metadata is read until an empty line is found.
+        """
+        for line in self.raw_content:
+            # Read the first line of the file
+            line = line.strip()
+            if not line:
+                break
+            key, value = line.split(maxsplit=1)
+            if key == 'title':
+                self.metadata['title'] = value
+            elif key == 'timestamp':
+                try:
+                    self.metadata['timestamp'] = datetime.fromisoformat(value)
+                except ValueError:
+                    self.metadata['timestamp'] = datetime.strptime(value, '%Y/%m/%d %H:%M')
+            elif key == 'tags':
+                self.metadata['tags'] = [tag.strip() for tag in value.split(',')]
+            elif key == 'category':
+                self.metadata['category'] = value
+
+    def _remove_comments(self):
+        """
+        remove comments from the line.
+        comments are defined by <!-- and --> tags like HTML.
+        multiline comments are supported.
+        """
+        in_comment = False
+        remove_commented_lines = []
+
+        # remove comments
+        for line in self.raw_content:
+            if '<!--' in line:
+                if '-->' in line:
+                    line = re.sub(r'<!--.*-->', '', line)
+                else:
+                    line = re.sub(r'<!--.*', '', line)
+                    in_comment = True
+                remove_commented_lines.append(line)
+                continue
+            if in_comment:
+                if '-->' in line:
+                    in_comment = False
+                    line = re.sub(r'.*-->', '', line)
+                else:
+                    line = ''
+            remove_commented_lines.append(line)
+        self.raw_content = remove_commented_lines
+
+    def _read_content(self):
+        """
+        Parse the article content and convert it to HTML.
+        """
+
+        # Decorate the raw content with HTML tags like markdown
+        raw_content = self._decorate_content(self.raw_content)
+
+        # Parse the article content and convert it to HTML.
+        paragraphs = self._parse_paragraph(raw_content)
+
+        # Align the paragraphs based on the alignment syntax
+        paragraphs = self._align_paragraphs(paragraphs)
+
+
+
+    def _decorate_content(self, raw_content: List[str]) -> List[str]:
         """
         Decorate the raw content with HTML tags like markdown.
         This function converts the raw content to HTML.
@@ -85,34 +185,7 @@ class Article:
         ]
         return decorated_content
 
-
-    def _remove_comments(self, raw_content: List[str]) -> list:
-        """
-        Remove comments from the line.
-        Comments are defined by <!-- and --> tags like HTML.
-        Multiline comments are supported.
-        """
-        in_comment = False
-        remove_commented_lines = []
-
-        for line in raw_content:
-            line = line.strip()
-
-            if re.search(r'<!-- ', line):
-                if re.search(r' -->', line):
-                    line = re.sub(r'\s*<!--.*?-->', '', line)
-                else:
-                    line = re.sub(r'\s*<!--.*', '', line)
-            if in_comment:
-                if re.search(r'-->', line):
-                    in_comment = False
-                    line = re.sub(r'.*?-->', '', line)
-                    in_comment = True
-            remove_commented_lines.append(line)
-
-        return remove_commented_lines
-
-    def _parse_pragraph(self, raw_content: List[str]) -> List[str]:
+    def _parse_paragraph(self, raw_content: List[str]) -> List[str]:
         """
         Parse a paragraph from the raw content.
         """
@@ -121,22 +194,20 @@ class Article:
 
         # Parse Paragraph
         for line in raw_content:
-            # remove leading and trailing whitespace
-            line = line.strip()
-
-            # if line is empty, add the current paragraph to the list
+            # Note: lines in raw_content are already stripped of leading and trailing whitespace
             if not line:
                 if current_paragraph:
                     paragraphs.append(current_paragraph)
                     current_paragraph = []
-            elif line.startswith('>>>'):
-                paragraphs.append(['<blockquote>'])
-            elif line.startswith('<<<'):
-                current_paragraph.append(['<blockquote>'])
-            elif line.startswith('---'):  # Horizontal rule
-                paragraphs.append(['<hr>'])
             else:
-                current_paragraph.append(line.strip())
+                if line.startswith('>>>'): # start of blockquote
+                    paragraphs.append(['<blockquote>'])
+                elif line.startswith('<<<'): # end of blockquote
+                    current_paragraph.append(['<blockquote>'])
+                elif line.startswith('---'):  # horizontal rule
+                    paragraphs.append(['<hr>'])
+                else:
+                    current_paragraph.append(line.strip())
 
         # add the last paragraph if it exists
         if current_paragraph:
@@ -149,55 +220,41 @@ class Article:
 
         return html_paragraphs
 
-    def read(self):
+    def _align_paragraphs(self, html_paragraphs: List[str]) -> List[str]:
         """
-        read the article file and parse the metadata.
-        metadata are defined in the first lines of the file.
-
-        metadata kinds and format:
-        
-        title article title
-        timestamp 2025/04/03
-        tags tag1,tag2,tag3
-        
-        timestamp format are:
-        - YYYY/MM/DD HH:mm
-        - any string that can be parsed by timestamp.fromisoformat
-        
-        name (key) and value are separated by at least one space and tab.
-        metadata is read until an empty line is found.
+        Align paragraphs based on the alignment syntax.
+        <p>=< : left aligned
+        <p>=| : center aligned
+        <p>=> : right aligned
         """
-        with open(self.filename, 'r', encoding='utf-8') as file:
-            for line in file:
-                # Read the first line of the file
-                line = line.strip()
-                if not line:
-                    break
-                key, value = line.split(maxsplit=1)
-                if key == 'title':
-                    self.metadata['title'] = value
-                elif key == 'timestamp':
-                    try:
-                        self.metadata['timestamp'] = datetime.fromisoformat(value)
-                    except ValueError:
-                        self.metadata['timestamp'] = datetime.strptime(value, '%Y/%m/%d %H:%M')
-                elif key == 'tags':
-                    self.metadata['tags'] = [tag.strip() for tag in value.split(',')]
-            # Read the rest of the file
-            self.raw_content = file.readlines()
+        aligned_paragraphs = []
 
-    def parse(self):
+        for paragraph in html_paragraphs:
+            if paragraph.startswith('<p>='):
+                if paragraph.startswith('<p>=>'):
+                    paragraph = paragraph.replace('<p>=>', '<p class="right">')
+                elif paragraph.startswith('<p>=|'):
+                    paragraph = paragraph.replace('<p>=|', '<p class="center">')
+                elif paragraph.startswith('<p>=<'):
+                    # default is left aligned
+                    paragraph = paragraph.replace('<p>=<', '<p>')
+            aligned_paragraphs.append(paragraph)
+
+        return aligned_paragraphs
+
+    def _divide_parts(self, paragraphs: List[str]) -> List[str]:
         """
-        Parse the article content and convert it to HTML.
+        Divide the article into parts.
         """
+        in_first_part = True
 
-        # decorate the raw content with HTML tags
-        # like markdown
-        raw_content = self._decorate(self.raw_content)
-
-        # remove comments from the raw content
-        # and remove leading and trailing whitespace
-        raw_content = self._remove_comments(raw_content)
-
-        # parse the article content and convert it to HTML.
-        paragraphs = self._parse_pragraph(self.raw_content)
+        for paragraph in paragraphs:
+            if paragraph.startswith('<p>:break'):
+                if in_first_part:
+                    in_first_part = False
+                    continue
+            else:
+                if in_first_part:
+                    self.first_part.append(paragraph)
+                else:
+                    self.last_part.append(paragraph)
