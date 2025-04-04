@@ -3,9 +3,6 @@ Nemulo: A simple static site generator for blogs.
 """
 
 import os
-import re
-
-from jinja2 import Template
 
 from article import Article, ArticleList
 

@@ -96,31 +96,51 @@ class Article:
         """
         paragraphs: List[str] = []
         current_paragraph: List[str] = []
+        in_comment = False
 
+        # Parse Paragraph
         for line in raw_content:
-            if line.strip():  # 空行でない場合
-                if line.startswith('---'):  # 区切り線の処理
-                    if current_paragraph:
-                        paragraphs.append(current_paragraph)
-                        current_paragraph = []
-                    paragraphs.append(['<hr>'])
-                elif line.startswith('> '):  # Blockquote の処理
-                    blockquote_content = line[2:].strip()
-                    paragraphs.append([f"<blockquote>{blockquote_content}</blockquote>"])
-                else:
-                    current_paragraph.append(line.strip())
-            elif current_paragraph:  # 空行でパラグラフ終了
-                paragraphs.append(current_paragraph)
-                current_paragraph = []
+            # remove leading and trailing whitespace
+            line = line.strip()
 
-        # 最後のパラグラフを追加（必要な場合）
+            # remove comments
+            if re.search(r'<!--', line):
+                if re.search(r'-->', line):
+                    # remove comment in the line
+                    line = re.sub(r'\s/*?<!-- .*?-->', '', line)
+                else:
+                    line = re.sub(r'\s/*?<!-- .*?', '', line)
+                    in_comment = True
+            if in_comment:
+                if re.search(r'-->', line):
+                    # remove comment in the line
+                    line = re.sub(r'.*?-->', '', line)
+                    in_comment = False
+                continue
+
+            # if line is empty, add the current paragraph to the list
+            if not line:
+                if current_paragraph:
+                    paragraphs.append(current_paragraph)
+                    current_paragraph = []
+            elif line.startswith('>>>'):
+                paragraphs.append(['<blockquote>'])
+            elif line.startswith('<<<'):
+                current_paragraph.append(['<blockquote>'])
+            elif line.startswith('---'):  # Horizontal rule
+                paragraphs.append(['<hr>'])
+            else:
+                current_paragraph.append(line.strip())
+
+        # add the last paragraph if it exists
         if current_paragraph:
             paragraphs.append(current_paragraph)
 
-        # 各パラグラフをHTMLに変換
+        # convert paragraphs to HTML
         html_paragraphs = [
             f"<p>{'<br>'.join(paragraph)}</p>" for paragraph in paragraphs
         ]
+
         return html_paragraphs
 
     def read(self):
