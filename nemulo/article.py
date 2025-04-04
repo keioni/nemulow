@@ -49,12 +49,12 @@ class Article:
     """
     filename: str
     raw_content = []
-    content = ""
+    content = ''
     metadata: Metadata = {
-        "title": "",
-        "timestamp": None,
-        "category": "uncategorized",
-        "tags": [],
+        'title': '',
+        'timestamp': None,
+        'category': 'uncategorized',
+        'tags': [],
     }
     first_part: List[str] = []
     last_part: List[str] = []
@@ -67,28 +67,50 @@ class Article:
 
     def _decorate(self, raw_content: List[str]) -> List[str]:
         """
-        Decorate the raw content with HTML tags.
-        """
-        # Decorate and the raw content with HTML tags
-        # like markdown
-        # Syntax:
-        # - **string** for bold
-        # - `code` for code
-        # - [alt text](url) for link
-        # - ![alt text](url) for image
-        decorated_content = []
-        for line in raw_content:
-            # Bold
-            line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
-            # Code
-            line = re.sub(r'`(.*?)`', r'<code>\1</code>', line)
-            # Link
-            line = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>', line)
-            # Image
-            line = re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">', line)
-            decorated_content.append(line)
+        Decorate the raw content with HTML tags like markdown.
+        This function converts the raw content to HTML.
 
+        The following syntax is supported:
+        - **string** : bold
+        - `code` : code
+        - [alt text](url) : link
+        - ![alt text](url) : image
+        """
+        decorated_content = [
+            re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">',
+            re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>',
+            re.sub(r'`(.*?)`', r'<code>\1</code>',
+            re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line))))
+            for line in raw_content
+        ]
         return decorated_content
+
+
+    def _remove_comments(self, raw_content: List[str]) -> list:
+        """
+        Remove comments from the line.
+        Comments are defined by <!-- and --> tags like HTML.
+        Multiline comments are supported.
+        """
+        in_comment = False
+        remove_commented_lines = []
+
+        for line in raw_content:
+            line = line.strip()
+
+            if re.search(r'<!-- ', line):
+                if re.search(r' -->', line):
+                    line = re.sub(r'\s*<!--.*?-->', '', line)
+                else:
+                    line = re.sub(r'\s*<!--.*', '', line)
+            if in_comment:
+                if re.search(r'-->', line):
+                    in_comment = False
+                    line = re.sub(r'.*?-->', '', line)
+                    in_comment = True
+            remove_commented_lines.append(line)
+
+        return remove_commented_lines
 
     def _parse_pragraph(self, raw_content: List[str]) -> List[str]:
         """
@@ -96,27 +118,11 @@ class Article:
         """
         paragraphs: List[str] = []
         current_paragraph: List[str] = []
-        in_comment = False
 
         # Parse Paragraph
         for line in raw_content:
             # remove leading and trailing whitespace
             line = line.strip()
-
-            # remove comments
-            if re.search(r'<!--', line):
-                if re.search(r'-->', line):
-                    # remove comment in the line
-                    line = re.sub(r'\s/*?<!-- .*?-->', '', line)
-                else:
-                    line = re.sub(r'\s/*?<!-- .*?', '', line)
-                    in_comment = True
-            if in_comment:
-                if re.search(r'-->', line):
-                    # remove comment in the line
-                    line = re.sub(r'.*?-->', '', line)
-                    in_comment = False
-                continue
 
             # if line is empty, add the current paragraph to the list
             if not line:
@@ -138,45 +144,45 @@ class Article:
 
         # convert paragraphs to HTML
         html_paragraphs = [
-            f"<p>{'<br>'.join(paragraph)}</p>" for paragraph in paragraphs
+            f'<p>{"<br>".join(paragraph)}</p>' for paragraph in paragraphs
         ]
 
         return html_paragraphs
 
     def read(self):
         """
-        Read the article source file and parse the metadata.
-        """
+        read the article file and parse the metadata.
+        metadata are defined in the first lines of the file.
 
-        # Read the article source file and parse the metadata.
-        # Metadata are ended by a blank line.
-        # for example:
-        #
-        # title article title
-        # timestamp 2025/04/03
-        # tags tag1,tag2,tag3
-        #
-        # The first line is the title of the article.
-        #
-        # timestamp format are:
-        # - YYYY/MM/DD HH:mm
-        # - any string that can be parsed by timestamp.fromisoformat
+        metadata kinds and format:
+        
+        title article title
+        timestamp 2025/04/03
+        tags tag1,tag2,tag3
+        
+        timestamp format are:
+        - YYYY/MM/DD HH:mm
+        - any string that can be parsed by timestamp.fromisoformat
+        
+        name (key) and value are separated by at least one space and tab.
+        metadata is read until an empty line is found.
+        """
         with open(self.filename, 'r', encoding='utf-8') as file:
             for line in file:
                 # Read the first line of the file
                 line = line.strip()
                 if not line:
                     break
-                key, value = line.split(' ', 1)
-                if key == "title":
-                    self.metadata["title"] = value
-                elif key == "timestamp":
+                key, value = line.split(maxsplit=1)
+                if key == 'title':
+                    self.metadata['title'] = value
+                elif key == 'timestamp':
                     try:
-                        self.metadata["timestamp"] = datetime.fromisoformat(value)
+                        self.metadata['timestamp'] = datetime.fromisoformat(value)
                     except ValueError:
-                        self.metadata["timestamp"] = datetime.strptime(value, "%Y/%m/%d %H:%M")
-                elif key == "tags":
-                    self.metadata["tags"] = [tag.strip() for tag in value.split(',')]
+                        self.metadata['timestamp'] = datetime.strptime(value, '%Y/%m/%d %H:%M')
+                elif key == 'tags':
+                    self.metadata['tags'] = [tag.strip() for tag in value.split(',')]
             # Read the rest of the file
             self.raw_content = file.readlines()
 
@@ -184,7 +190,14 @@ class Article:
         """
         Parse the article content and convert it to HTML.
         """
-        self.raw_content = self._decorate(self.raw_content)
-        # Parse the article content and convert it to HTML.
+
+        # decorate the raw content with HTML tags
+        # like markdown
+        raw_content = self._decorate(self.raw_content)
+
+        # remove comments from the raw content
+        # and remove leading and trailing whitespace
+        raw_content = self._remove_comments(raw_content)
+
+        # parse the article content and convert it to HTML.
         paragraphs = self._parse_pragraph(self.raw_content)
-        # Add the metadata to the content
