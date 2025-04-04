@@ -1,3 +1,8 @@
 {
-    "flake8.enabled": false
+    "flake8.enabled": false,
+    "pylint.enabled": true,
+    "python.analysis.extraPaths": [
+        "./",
+        "./nemulo"
+    ]
 }

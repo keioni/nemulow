@@ -23,4 +23,4 @@ def main():
     if not os.path.exists(TEXT_HTML_DIR):
         os.makedirs(TEXT_HTML_DIR)
 
-    ArticleList.load_articles(TEXT_SRC_DIR)
+    # ArticleList.load_articles(TEXT_SRC_DIR)

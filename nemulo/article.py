@@ -41,7 +41,8 @@ class Metadata(TypedDict):
     title: str
     timestamp: datetime
     category: Optional[str]
-    tags: List[str]
+    tags: Optional[List[str]]
+
 
 class Article:
     """
