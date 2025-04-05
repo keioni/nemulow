@@ -168,20 +168,30 @@ class Article:
 
     def _decorate_content(self, raw_content: List[str]) -> List[str]:
         """
-        Decorate the raw content with HTML tags like markdown.
-        This function converts the raw content to HTML.
+        Decorate the raw content with HTML tags.
+        Some markdown syntax is supported.
 
-        The following syntax is supported:
+        The following markdwon syntax is supported:
         - **string** : bold
         - `code` : code
         - [alt text](url) : link
         - ![alt text](url) : image
+
+        Followings are original syntax:
+        - ^^^string^^^ : emphasis text by css "text-emphasis-style: dot"
+        - ^^type^^string^^^ : same as above but with a custom (type) emphasis style
+        - ~~string~~ : strikethrough
+        - ||string||ruby string|| : ruby
         """
         decorated_content = [
+            re.sub(r'\|\|(.+?)\|\|(.+?)\|\|', r'<ruby>\1<rp>\(<rt>\2</rt><rp>\)</rp></ruby>',
+            re.sub(r'~~(.*?)~~', r'<del>\1</del>',
+            re.sub(r'\^\^(.+?)\^\^\(.+?)\^\^', r'<span class="text-emphasis-style: \1">\2</span>',
+            re.sub(r'\^\^\^(.*?)\^\^\^', r'<span class="text-emphasis-style: dot">\1</span>',
             re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">',
             re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>',
             re.sub(r'`(.*?)`', r'<code>\1</code>',
-            re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line))))
+            re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line))))))))
             for line in raw_content
         ]
         return decorated_content
