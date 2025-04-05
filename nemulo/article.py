@@ -157,17 +157,10 @@ class Article:
 
         # Decorate the raw content with HTML tags like markdown
         raw_content = self._decorate_content(self.raw_content)
-
         # Parse the article content and convert it to HTML.
         paragraphs = self._parse_paragraph(raw_content)
-
-        # Apply preformatting
-        paragraphs = self._apply_preformat(paragraphs)
-
         # Align the paragraphs based on the alignment syntax
         paragraphs = self._align_paragraphs(paragraphs)
-
-
 
     def _decorate_content(self, raw_content: List[str]) -> List[str]:
         """
@@ -232,31 +225,6 @@ class Article:
             f'<p>{"<br>".join(paragraph)}</p>' for paragraph in paragraphs
         ]
         return html_paragraphs
-
-    def _apply_preformat(self, html_paragraphs: List[str]) -> List[str]:
-        """
-        Apply preformatting to paragraphs.
-        They were converted to HTML by the _parse_paragraph function,
-        so we need to remove <p> and </p> tags from preformatted paragraphs.
-        """
-        preformatted_paragraphs = []
-        in_preformatted = False
-
-        for paragraph in html_paragraphs:
-            if in_preformatted:
-                if paragraph == '<p></pre></p>':
-                    paragraph = '</pre>'
-                    in_preformatted = False
-            else:
-                if paragraph.startswith('<p><pre></p>'):
-                    paragraph = paragraph.replace('<p><pre></p>', '<pre>')
-                    in_preformatted = True
-                else:
-                    # remove <p> and </p> tags in preformatted paragraphs
-                    paragraph = re.sub(r'^<p>(.*?)</p>$', '\1', paragraph)
-            preformatted_paragraphs.append(paragraph)
-
-        return preformatted_paragraphs
 
     def _align_paragraphs(self, html_paragraphs: List[str]) -> List[str]:
         """
