@@ -3,6 +3,6 @@
     "pylint.enabled": true,
     "python.analysis.extraPaths": [
         "./",
-        "./nemulo"
+        "./nemulow"
     ]
 }
