@@ -49,8 +49,6 @@ body {
     box-sizing: border-box;
     color: var(--normal-text-color);
     background-color: var(--normal-background-color);
-    /* min-width: 960px; */
-    /* width: 100%; */
 }
 
 
@@ -77,7 +75,6 @@ header {
     background: var(--header-footer-background-color);
     text-align: center;
     padding: 2em 0 2em 0;
-    /* max-width: 1000px; */
     margin: 0 auto 2em auto;
 }
 
@@ -231,6 +228,7 @@ footer {
     min-width: 100%;
 }
 
+/*** I wish you use IPv6! ***/
 footer div.ip-version-banner img {
     height: 24px;
 }
