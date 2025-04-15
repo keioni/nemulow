@@ -12,7 +12,7 @@
     --link-visited-color: #a0a0a0;
 
     --date-article-separator-color: #e0e0e0;
-    --continue-border-color: #909090;
+    --read-more-border-color: #909090;
 
     --blockquote-left-border-color: #b0b0b0;
     --blockquote-background-color: #f0f0f0;
@@ -28,7 +28,7 @@
         --link-visited-color: #909090;
     
         --date-article-separator-color: #505050;
-        --continue-border-color: #909090;
+        --read-more-border-color: #909090;
 
         --blockquote-left-border-color: #808080;
         --blockquote-background-color: #383838;
@@ -147,17 +147,17 @@ article p.article-datetime {
     border-block-end-color: var(--date-article-separator-color);
 }
 
-article p.continue {
+article p.read-more {
     margin-top: 2em;
 }
 
-article p.continue span {
+article p.read-more span {
     padding: 0.5em;
     font-size: 0.8em;
-    border: solid 1px var(--continue-border-color);
+    border: solid 1px var(--read-more-border-color);
 }
 
-article p.continue a {
+article p.read-more a {
     color: var(--normal-text-color);
     text-decoration: none;
 }
