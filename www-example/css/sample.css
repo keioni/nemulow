@@ -39,10 +39,7 @@
 
 
 body {
-    /* font-family: 'IBM Plex Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Arial', sans-serif; */
-    /* font-family: 'IBM Plex Sans JP'; */
-    /* font-family: 'Hiragino Kaku Gothic ProN'; */
-    /* font-family: 'Meiryo'; */
+    font-family: 'IBM Plex Sans JP';
     line-height: 1.8em;
     margin: 0;
     padding: 0;
