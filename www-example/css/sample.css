@@ -191,11 +191,12 @@ aside h2.color-switch {
     font-size: 1em;
 }
 
-aside ol {
+aside ol.recent-articles {
     margin-left: -1em;
     word-break: break-all;
     font-size: 0.9em;
     line-height: 1.5em;
+    list-style-type: circle;
 }
 
 aside li {
