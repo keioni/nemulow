@@ -230,20 +230,20 @@ footer div.ip-version-banner img {
     height: 24px;
 }
 
-footer ul.navigation-list {
+footer ol.other-site-navigation {
     display: flex;
     justify-content: center;
     padding: 0;
     margin: 1.5em 0 1.5em 0;
 }
 
-footer ul.navigation-list li {
+footer ol.other-site-navigation li {
     display: inline;
     margin-left: 0.8em;
     margin-right: 0.8em;
 }
 
-footer ul.navigation-list img {
+footer ol.other-site-navigation img {
     width: 24px;
     height: 24px;
 }
