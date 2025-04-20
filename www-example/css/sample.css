@@ -192,21 +192,21 @@ aside {
     border: none;
 }
 
-aside section {
-    margin-bottom: 1.5em;
-    padding-bottom: 1em;
-    border-bottom: 1px solid var(--sidebar-section-border-color);
-}
-
 aside h2 {
     font-size: 1.25em;
     font-weight: normal;
     margin-bottom: -0.5em;
 }
 
+aside section {
+    margin-bottom: 1.5em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--sidebar-section-border-color);
+}
+
 /*** theme selector ***/
 aside section.theme h2 {
-    /* this header is for blind users, so it is not visible */
+    /* this section's header is for blind users, so it is not visible */
     visibility: hidden;
     line-height: 1em;
 }
