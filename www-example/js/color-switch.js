@@ -1,15 +1,36 @@
-const toggleButton = document.getElementById('toggleMode');
-const currentMode = localStorage.getItem('theme') || 'light';
-document.body.dataset.theme = currentMode;
-updateButtonLabel();
+// JavaScript
+(function () {
+    const icons = document.querySelectorAll('.theme-icon');
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const STORAGE_KEY = 'theme-mode';
 
-toggleButton.addEventListener('click', () => {
-    const newMode = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.body.dataset.theme = newMode;
-    localStorage.setItem('theme', newMode);
-    updateButtonLabel();
-});
+    function applyTheme(mode) {
+        let theme = mode === 'system'
+            ? (mq.matches ? 'dark' : 'light')
+            : mode;
+        document.documentElement.setAttribute('data-theme', theme);
+        // アイコンの選択状態更新
+        icons.forEach(i => {
+            i.classList.toggle('selected', i.dataset.mode === mode);
+        });
+    }
 
-function updateButtonLabel() {
-    toggleButton.textContent = document.body.dataset.theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
-}
+    // クリックでモード切替
+    icons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const mode = icon.dataset.mode;
+            localStorage.setItem(STORAGE_KEY, mode);
+            applyTheme(mode);
+        });
+    });
+
+    // システム設定変化時
+    mq.addEventListener('change', () => {
+        const current = localStorage.getItem(STORAGE_KEY) || 'system';
+        if (current === 'system') applyTheme('system');
+    });
+
+    // 初期化
+    const saved = localStorage.getItem(STORAGE_KEY) || 'system';
+    applyTheme(saved);
+})();
