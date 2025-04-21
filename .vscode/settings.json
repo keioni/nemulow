@@ -8,5 +8,6 @@
     "python.analysis.extraPaths": [
         "./",
         "./nemulow"
-    ]
+    ],
+    "editor.unicodeHighlight.invisibleCharacters": false
 }

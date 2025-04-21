@@ -295,6 +295,9 @@ footer ol.other-site-navigation img {
     height: 24px;
 }
 
+footer p {
+    line-height: 1.5em;
+}
 
 @media (max-width: 768px) {
     main {
