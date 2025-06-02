@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 jinja2 = "*"
+keychain = "*"
+atproto = "*"
 
 [dev-packages]
 pytest = "*"
