@@ -264,3 +264,4 @@ class Article:
                     self.first_part.append(paragraph)
                 else:
                     self.last_part.append(paragraph)
+        return self.first_part + self.last_part
