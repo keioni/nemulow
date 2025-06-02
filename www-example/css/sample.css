@@ -105,7 +105,7 @@ main {
     padding: 0;
 }
 
-.articles {
+div.articles {
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -114,9 +114,31 @@ main {
 
 }
 
+article.full-text {
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    padding: 1em 2em 1em 2em;
+    margin: 0em 1em 0em 1em;
+}
+
+article.full-text h2 {
+    font-size: 2em;
+    font-weight: normal;
+    line-height: 1.5em;
+    margin-top: 0.5em;
+}
+
+article.full-text p.article-datetime {
+    margin-top: -1.5em;
+    text-align: right;
+    border-style: none;
+}
+
+
 
 /*** article ***/
-article {
+div.articles article {
     background-color: var(--article-card-background-color);
     padding: 20px;
     margin: 10px 20px;
@@ -133,6 +155,7 @@ article h2 {
 }
 
 article h2 a {
+    line-height: 1.4em;
     text-decoration: none;
 }
 
