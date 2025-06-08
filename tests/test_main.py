@@ -1,5 +1,17 @@
 import os
+import sys
 import pytest
+
+# Ensure the project package can be imported when running tests directly
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from nemulow.utils import (
+    convert_markdown_to_html,
+    sanitize_filename,
+    get_article_list,
+    generate_article_html,
+    generate_index_html,
+)
 
 # テスト用のディレクトリとファイルを設定
 TEST_SRC_DIR = 'tests/text/src'
@@ -27,7 +39,7 @@ def setup_files():
     yield
 
     # テスト終了後にファイルを削除
-    for root, dirs, files in os.walk('tests', topdown=False):
+    for root, dirs, files in os.walk('tests/text', topdown=False):
         for name in files:
             os.remove(os.path.join(root, name))
         for name in dirs:
