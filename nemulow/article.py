@@ -207,10 +207,17 @@ class Article:
                     paragraphs.append(current_paragraph)
                     current_paragraph = []
             else:
-                if line.startswith('>>>'): # start of blockquote
+                if line.startswith('>>>'):  # start of blockquote
+                    # flush current paragraph before starting a blockquote
+                    if current_paragraph:
+                        paragraphs.append(current_paragraph)
+                        current_paragraph = []
                     paragraphs.append(['<blockquote>'])
-                elif line.startswith('<<<'): # end of blockquote
-                    current_paragraph.append(['<blockquote>'])
+                elif line.startswith('<<<'):  # end of blockquote
+                    if current_paragraph:
+                        paragraphs.append(current_paragraph)
+                        current_paragraph = []
+                    paragraphs.append(['</blockquote>'])
                 elif line.startswith('---'):  # horizontal rule
                     paragraphs.append(['<hr>'])
                 else:
