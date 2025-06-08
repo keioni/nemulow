@@ -38,7 +38,7 @@ class Metadata(TypedDict):
     TypedDict for Article metadata.
     """
     title: str
-    timestamp: datetime
+    timestamp: Optional[datetime]
     category: Optional[str]
     tags: Optional[List[str]]
 
@@ -203,32 +203,32 @@ class Article:
             # Note: lines in raw_content are already stripped of leading and trailing whitespace
             if not line:
                 if current_paragraph:
-                    paragraphs.append(current_paragraph)
+                    paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
                     current_paragraph = []
             else:
                 if line.startswith('>>>'):  # start of blockquote
                     # flush current paragraph before starting a blockquote
                     if current_paragraph:
-                        paragraphs.append(current_paragraph)
+                        paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
                         current_paragraph = []
-                    paragraphs.append(['<blockquote>'])
+                    paragraphs.append('<blockquote>')
                 elif line.startswith('<<<'):  # end of blockquote
                     if current_paragraph:
-                        paragraphs.append(current_paragraph)
+                        paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
                         current_paragraph = []
-                    paragraphs.append(['</blockquote>'])
+                    paragraphs.append('</blockquote>')
                 elif line.startswith('---'):  # horizontal rule
-                    paragraphs.append(['<hr>'])
+                    paragraphs.append('<hr>')
                 else:
                     current_paragraph.append(line.strip())
 
         # add the last paragraph if it exists
         if current_paragraph:
-            paragraphs.append(current_paragraph)
+            paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
 
         # convert paragraphs to HTML
         html_paragraphs = [
-            f'<p>{"<br>".join(paragraph)}</p>' for paragraph in paragraphs
+            f'<p>{paragraph}</p>' for paragraph in paragraphs
         ]
         return html_paragraphs
 

@@ -3,7 +3,6 @@ Nemulo: A simple static site generator for blogs.
 """
 
 import json
-import os
 from typing import List, Union
 
 from article import Article, ArticleList
