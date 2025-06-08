@@ -7,7 +7,6 @@ Specifications for this module are defined in the SPEC.md file.
 """
 
 import re
-
 from datetime import datetime
 from typing import TypedDict, List, Optional
 

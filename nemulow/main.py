@@ -2,25 +2,73 @@
 Nemulo: A simple static site generator for blogs.
 """
 
+import json
 import os
+from typing import List, Union
 
 from article import Article, ArticleList
 
-# Constants
-TEXT_SRC_DIR = 'text/src'
-TEXT_HTML_DIR = 'text/html'
-TEMPLATE_DIR = 'text/template'
-TOP_PAGE_TEMPLATE = 'top_page.html'
-ARTICLE_TEMPLATE = 'article.html'
-JS_TEMPLATE = 'articles.js'
-JS_OUTPUT = 'text/html/articles.js'
-ARTICLE_COUNT = 5
-SIDEBAR_COUNT = 20
+
+class Blog:
+    """
+    Base category for managing a blog.
+    """
+    config_file: str = 'config.json'
+    config: dict[str, Union[str, int, bool]] = {}
+    articles: List[Article]
+
+    def __init__(self, config_file: str = 'config.json'):
+        self.config = json.load(open(config_file, 'r', encoding='utf-8'))
+
+    def reload_config(self, config_file: str):
+        """
+        Load the blog configuration.
+        """
+        self.config = json.load(open(config_file, 'r', encoding='utf-8'))
+
+    def build(self):
+        """
+        Build the blog by processing articles and applying configuration.
+        """
+        if not self.config:
+            raise ValueError("Configuration is not set.")
 
 
-def main():
-    """Main function."""
-    if not os.path.exists(TEXT_HTML_DIR):
-        os.makedirs(TEXT_HTML_DIR)
+class Configure:
+    """
+    Class for managing blog configuration.
+    """
+    dest_path: str
+    src_path: str
+    template_path: str
 
-    # ArticleList.load_articles(TEXT_SRC_DIR)
+    def __init__(self):
+        """
+        Initialize the configuration with default paths.
+        """
+        self.dest_path = ''
+        self.src_path = ''
+        self.template_path = ''
+
+    def load_config_file(self, config_file: str):
+        """
+        Load configuration from a file.
+        """
+        # Placeholder for loading logic
+        pass
+        # Load articles from the source directory
+
+
+class Template:
+    """
+    Class for managing blog templates.
+    """
+    def __init__(self, template_path: str):
+        self.template_path = template_path
+
+    def load_template(self, template_name: str):
+        """
+        Load a template file.
+        """
+        with open(f"{self.template_path}/{template_name}", "r", encoding="utf-8") as f:
+            return f.read()
