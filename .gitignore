@@ -170,9 +170,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-.env*
+# local configuration files
+.env
 !.env.example
-
-cred/
-creds/
-credentials/
