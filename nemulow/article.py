@@ -179,17 +179,30 @@ class Article:
         - ~~string~~ : strikethrough
         - ||string||ruby string|| : ruby
         """
-        decorated_content = [
-            re.sub(r'\|\|(.+?)\|\|(.+?)\|\|', r'<ruby>\1<rp>\(<rt>\2</rt><rp>\)</rp></ruby>',
-            re.sub(r'~~(.*?)~~', r'<del>\1</del>',
-            re.sub(r'\^\^(.+?)\^\^\(.+?)\^\^', r'<span class="text-emphasis-style: \1">\2</span>',
-            re.sub(r'\^\^\^(.*?)\^\^\^', r'<span class="text-emphasis-style: dot">\1</span>',
-            re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">',
-            re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>',
-            re.sub(r'`(.*?)`', r'<code>\1</code>',
-            re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line))))))))
-            for line in raw_content
-        ]
+        decorated_content = []
+        for line in raw_content:
+            line = re.sub(
+                r'\|\|(.+?)\|\|(.+?)\|\|',
+                r'<ruby>\1<rp>(</rp><rt>\2</rt><rp>)</rp></ruby>',
+                line,
+            )
+            line = re.sub(r'~~(.*?)~~', r'<del>\1</del>', line)
+            line = re.sub(
+                r'\^\^(.+?)\^\^\((.+?)\)\^\^',
+                r'<span class="text-emphasis-style: \1">\2</span>',
+                line,
+            )
+            line = re.sub(
+                r'\^\^\^(.*?)\^\^\^',
+                r'<span class="text-emphasis-style: dot">\1</span>',
+                line,
+            )
+            line = re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">', line)
+            line = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>', line)
+            line = re.sub(r'`(.*?)`', r'<code>\1</code>', line)
+            line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
+            decorated_content.append(line)
+
         return decorated_content
 
     def _parse_paragraph(self, raw_content: List[str]) -> List[str]:
@@ -207,10 +220,10 @@ class Article:
                     paragraphs.append(current_paragraph)
                     current_paragraph = []
             else:
-                if line.startswith('>>>'): # start of blockquote
+                if line.startswith('>>>'):  # start of blockquote
                     paragraphs.append(['<blockquote>'])
-                elif line.startswith('<<<'): # end of blockquote
-                    current_paragraph.append(['<blockquote>'])
+                elif line.startswith('<<<'):  # end of blockquote
+                    paragraphs.append(['</blockquote>'])
                 elif line.startswith('---'):  # horizontal rule
                     paragraphs.append(['<hr>'])
                 else:
