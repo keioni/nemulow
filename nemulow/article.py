@@ -166,7 +166,7 @@ class Article:
         Decorate the raw content with HTML tags.
         Some markdown syntax is supported.
 
-        The following markdwon syntax is supported:
+        The following markdown syntax is supported:
         - **string** : bold
         - `code` : code
         - [alt text](url) : link
