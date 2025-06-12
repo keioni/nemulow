@@ -7,7 +7,7 @@ name = "pypi"
 jinja2 = "*"
 keychain = "*"
 atproto = "*"
-PyYAML = "*"
+python-dotenv = "*"
 
 [dev-packages]
 pytest = "*"
