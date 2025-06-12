@@ -1,6 +1,6 @@
-# Nemlow 文法
+# Nemulow 文法
 
-Nemlow は、Markdown に似た **Nemlow 言語** を使う。
+Nemulow は、Markdown に似た **Nemulow 言語** を使う。
 
 ソースとなるテキストは、以下のような形式をとる:
 
