@@ -43,7 +43,7 @@ category:
 例:
 
 ```
-of-course-cat-is-the-best-cute-animal
+filename: of-course-cat-is-the-best-cute-animal
 ```
 
 ## summary
