@@ -8,6 +8,7 @@ jinja2 = "*"
 keychain = "*"
 atproto = "*"
 python-dotenv = "*"
+dotenv = "*"
 
 [dev-packages]
 pytest = "*"
