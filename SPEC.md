@@ -5,21 +5,21 @@ Nemulow は、Markdown に似た **Nemulow 言語** を使う。
 ソースとなるテキストは、以下のような形式をとる:
 
 ```plaintext
-filename:
-summary:
-category:
+* metadata1: value1
+* metadata2: value2 and value3
+* metadata_3: invalid_value
 
-本文
+message
 ```
 
 # メタデータ
 
 ファイル先頭から、最初の空行まではメタデータとして扱われる。メタデータは、今後のバージョンアップで増える可能性がある。
 
-メタデータの書式は正規表現で表すと以下の通りである:
+メタデータの書式は以下の通りである:
 
 ```plaintext
-(^¥w+):¥s+(.*)$
+* keyname: value
 ```
 
 各記事の題名やタイムスタンプは、ソースファイルの名前から取得する。
@@ -43,12 +43,21 @@ category:
 例:
 
 ```
-filename: of-course-there-is-no-animal-cuter-than-cats
+* filename: of-course-there-is-no-animal-cuter-than-cats
 ```
 
 ## summary
 
 (オプション) ogp の description に埋め込む文章。
+
+## seq
+
+同じ日付で複数の記事を作るときの順序を指定する。省略した場合、seq は 1 である。つまり、2本目の記事を書くときは1本目のスファイルは編集せず、2本目のソースファイルの seq に 2 以降の値を付ける。
+
+```
+* seq 2
+```
+
 
 ## category
 
@@ -140,6 +149,7 @@ __bold__
 * 斜体、斜体＋太字
   * ただし斜体＋太字の書式は、別の用途で使う
 * 箇条書き・リスト
+  * 箇条書きで使う `*` は、システムへのディレクティブとして使う
 * テーブル
 * 脚注
 * `>` を使った引用
@@ -165,7 +175,7 @@ __bold__
 記事がトップページなど、複数の記事が掲載される html に出力されるとき、記事全体を掲載するには長すぎると考えられる場合は、本文中に以下のように書く。
 
 ```plaintext
-:break
+* break
 ```
 
 この場合、複数の記事を含む html ファイルでは `:break` の前の行までが使われる。この箇所に「続きを読む」といった、個別記事へのリンクを作る。
