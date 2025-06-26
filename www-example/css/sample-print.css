@@ -1,0 +1,50 @@
+body {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+header h1 {
+    font-size: 1.75em;
+    padding-bottom: 1em;
+    border-bottom: #000000 1px solid;
+}
+
+article h2 {
+    font-size: 1.5em;
+    padding-top: 1em;
+    padding-bottom: 0em;
+}
+
+article p.article-datetime {
+    text-align: right;
+    padding-top: 0em;
+    padding-bottom: 1.5em;
+}
+
+article blockquote {
+    margin: 0.5em auto 0.5em auto;
+    padding: 0.2em 0.2em 0.2em 1em;
+    border-left: 2px solid #000000;
+    background-color: #f0f0f0;
+    font-style: italic;
+}
+
+
+/*** footer ***/
+footer {
+    border-top: #000000 1px solid;
+    line-height: 2em;
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 3em;
+    padding-top: 3em;
+}
+
+/*** I wish you use IPv6! ***/
+footer div.ip-version-banner img {
+    height: 24px;
+}
+
+footer p {
+    line-height: 1.5em;
+}

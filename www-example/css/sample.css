@@ -2,7 +2,7 @@
     color-scheme: light dark;
     --header-footer-text-color: #ffffff;
     --header-footer-background-color: #303030;
-    --link-hover-color: #ff0000;
+    --link-hover-color: #3f9fdf;
 
     --normal-text-color: #202020;
     --normal-background-color: #e0e0e0;
@@ -27,7 +27,7 @@
     color-scheme: light dark;
     --header-footer-text-color: #ffffff;
     --header-footer-background-color: #303030;
-    --link-hover-color: #ff0000;
+    --link-hover-color: #3f9fdf;
 
     --normal-text-color: #e0e0e0;
     --normal-background-color: #202020;
@@ -137,24 +137,23 @@ article.full-text p.article-datetime {
 
 
 /*** article ***/
+div.articles {
+    margin: 2em 4em 2em 2em;
+}
+
 div.articles article {
-    background-color: var(--article-card-background-color);
-    padding: 20px;
-    margin: 10px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--article-border-color);
+    margin: 0em 0em 1em 0em;
+    padding-bottom: 1em;
+    border-bottom: 1px var(--article-border-color) solid;
 }
 
 article h2 {
     font-size: 1.8em;
+    line-height: 1.4em;
     font-weight: normal;
 }
 
 article h2 a {
-    line-height: 1.4em;
     text-decoration: none;
 }
 
@@ -171,15 +170,12 @@ article p a {
 }
 
 article p.article-datetime {
-    margin-top: -1em;
-    margin-bottom: 1.5em;
-    padding-bottom: 0.75em;
-    border-bottom: 1px solid;
-    border-block-end-color: var(--date-article-separator-color);
+    margin-top: -6em;
+    padding-bottom: 3.5em;
 }
 
 article p.read-more {
-    margin-top: 2em;
+    text-align: right;
 }
 
 article p.read-more span {
@@ -199,6 +195,11 @@ article blockquote {
     border-left: 3px solid var(--blockquote-left-border-color);
     background-color: var(--blockquote-background-color);
     font-style: italic;
+}
+
+.articles p.link-old-article-list {
+    text-align: center;
+    margin-bottom: -1em;
 }
 
 
