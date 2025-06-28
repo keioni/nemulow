@@ -12,7 +12,7 @@
 </section>
 <section>
     <h2>最近の記事</h2>
-    <ol class="recent-articles">
+    <ol class="previous-article-list">
     {% for article in recent_articles %}
         <li><a href="/{{ article.path }}">{{ article.title }}</a><span class="list-post-date">{{ article.date }}</span><br>{{ article.title }}</li>
     {% endfor %}
