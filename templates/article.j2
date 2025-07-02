@@ -2,32 +2,29 @@
 <html lang="ja">
 
 <head>
-    {% import 'text/template/_head.j2' %}
+    {% import 'template/_head.j2' %}
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            {% import 'text/template/_header.j2' %}
-        </header>
+    <header>
+        {% import 'template/_header.j2' %}
+    </header>
 
-        <main>
-            <section>
-                <article class="article">
-                    <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
-                    {{ article }}
-                </article>
-            </section>
+    <nav>
+        {% import 'template/_nav.j2' %}
+    </nav>
 
-            <aside>
-                {% import 'text/template/_aside.j2' %}
-            </aside>
-        </main>
+    <main>
+        <article class="full-text">
+            <h2>{{ article.title }}</h2>
+            <p class="article-datetime">{{ article.date }}</p>
+            {{ article }}
+        </article>
+    </main>
 
-        <footer>
-            {% import 'text/template/_footer.j2' %}
-        </footer>
-    </div>
+    <footer>
+        {% import 'template/_footer.j2' %}
+    </footer>
 </body>
 
 </html>
