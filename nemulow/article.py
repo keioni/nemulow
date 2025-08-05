@@ -134,7 +134,7 @@ class Article:
         for line in self.raw_content:
             if '<!--' in line:
                 if '-->' in line:
-                    line = re.sub(r'<!--.*-->', '', line)
+                    line = re.sub(r'<!--.*-->', '', line, flags=re.DOTALL)
                 else:
                     line = re.sub(r'<!--.*', '', line)
                     in_comment = True
