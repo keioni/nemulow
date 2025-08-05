@@ -143,7 +143,7 @@ class Article:
             if in_comment:
                 if '-->' in line:
                     in_comment = False
-                    line = re.sub(r'.*-->', '', line)
+                    line = re.sub(r'.*-->', '', line, flags=re.DOTALL)
                 else:
                     line = ''
             remove_commented_lines.append(line)
