@@ -172,7 +172,14 @@ cython_debug/
 
 # local configuration files
 .env
+.env*
 !.env.example
 
 # Local virtual environment
 .venv/
+
+# Temporary files
+*.bak
+*.log
+*.tmp
+tmp/
