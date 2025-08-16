@@ -1,13 +1,9 @@
 {
-    "files.associations": {
-        "LICENSE": "plaintext"
-    },
     "liveServer.settings.root": "/www-example",
     "flake8.enabled": false,
     "pylint.enabled": true,
     "python.analysis.extraPaths": [
         "./",
         "./nemulow"
-    ],
-    "editor.unicodeHighlight.invisibleCharacters": false
+    ]
 }
