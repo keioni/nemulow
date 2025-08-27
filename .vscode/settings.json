@@ -1,5 +1,5 @@
 {
-    "liveServer.settings.root": "/www-example",
+    "liveServer.settings.root": "/example/www",
     "flake8.enabled": false,
     "pylint.enabled": true,
     "python.analysis.extraPaths": [
