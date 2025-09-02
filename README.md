@@ -20,18 +20,24 @@ Nemulow は完全スタティックなブログ作成システムを目指して
 
 ### Python の準備
 
-実行には Python 3.9 以上が必要です。
+実行には Python 3.13 以上が必要です。`Pipfile` を元にパッケージの導入など、環境を整えてください。
 
-`pipenv` を使って実行環境を整えます。Python に詳しいなら、このあたりは読み飛ばしてください。
+作者は `pipenv` を使っていて、実績があります。<br>
+他の方法は、多くのサイトで書かれているので、それを参考にしてください。
 
-`pipenv` のインストールについては、Mac, Windows など、それぞれの環境で選択してください。
-
-`pipenv install` をした後は、実行するのみです。
+実行には、トップディレクトリから以下のように実行します。
 
 ```shell
-pipenv install
 python3 nemulow/main.py
 ```
+
+`pipenv` を使っている場合は、
+
+```shell
+pipenv run nemulow/main.py
+```
+
+という形になります。
 
 ### 動作設定
 
