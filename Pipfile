@@ -10,7 +10,7 @@ dotenv = "*"
 
 [dev-packages]
 pytest = "*"
-pylint = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.13"
