@@ -1,0 +1,41 @@
+name: Python Standard Lint
+
+on:
+  pull_request:
+    types:
+      - 'opened'
+      - 'reopened'
+      - 'synchronize'
+      - 'ready_for_review'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: 'Pipfile'
+          cache: 'pipenv'
+
+      - name: Install pipenv and dependencies
+        run: |
+          curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+          pipenv install --dev
+
+      - name: Run Bandit
+        run: |
+          pipenv install bandit
+          pipenv run bandit -r . -ll
+
+      - name: Run flake8
+        run: |
+          pipenv run flake8 . --statistics --show-source --count
+
+      - name: Run Black
+        run: |
+          pipenv install black
+          pipenv run black --check --diff .
