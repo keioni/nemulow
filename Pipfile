@@ -7,6 +7,7 @@ name = "pypi"
 jinja2 = "*"
 python-dotenv = "*"
 dotenv = "*"
+markdown = "*"
 
 [dev-packages]
 pytest = "*"
