@@ -1,7 +1,7 @@
 """
 Convert text to HTML.
 
-This module provides functions to convert text to HTML.
+This module provides functions to convert one text file to one HTML file.
 Specifications for this module are defined in the SPEC.md file.
 
 """
