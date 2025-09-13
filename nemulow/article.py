@@ -99,7 +99,7 @@ class Article:
 
     def make_summary(self) -> str:
         """
-        Make the summary HTML.
+        Make the short summary text for "og:description" metadata and other uses.
         """
         summary = self._paragraphize(self.summary, remove_tag=True)
         summary = self._remove_comments(summary)
