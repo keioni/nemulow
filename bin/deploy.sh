@@ -26,9 +26,7 @@ tar zcvf --newer-file $WWW_ROOT/index.html $tarball -C $WWW_ROOT .
 
 # 変更したファイルの tar ball とサーバ側デプロイ用スクリプトを転送
 # .env ファイルも転送する
-scp -r $tarball $SERVER_NAME:/tmp/
-scp "./bin/$server_side_deploy_script" $SERVER_NAME:/tmp/
-scp "$temp_dir/.env" $SERVER_NAME:/tmp/
+scp -r $tarball ./bin/$server_side_deploy_script $temp_dir/.env $SERVER_NAME:/tmp/
 
 # サーバ側デプロイ用スクリプトの実行と削除
 ssh $SERVER_NAME "bash -eu /tmp/$server_side_deploy_script; rm -rf /tmp/$server_side_deploy_script"
