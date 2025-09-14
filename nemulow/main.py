@@ -38,4 +38,6 @@ class Nemulow:
         """
         dotenv.load_dotenv(config_file)
 
-        self.config = json.load(open(config_file, 'r', encoding='utf-8'))
+        # Load configuration from environment variables instead of JSON
+        import os
+        self.config = dict(os.environ)
