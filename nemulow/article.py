@@ -1,273 +1,166 @@
 """
 Convert text to HTML.
 
-This module provides functions to convert text to HTML.
+This module provides functions to convert one text file to one HTML file.
 Specifications for this module are defined in the SPEC.md file.
 
 """
 
+import os
 import re
-from datetime import datetime
-from typing import TypedDict, List, Optional
+from datetime import date
 
-class ArticleList:
-    """
-    Class representing a list of articles.
-    """
-    def __init__(self):
-        """
-        Initialize the article list.
-        """
-        self.articles = []
-
-    def add(self, article):
-        """
-        Add an article to the list.
-        """
-        self.articles.append(article)
-
-    def get(self):
-        """
-        Get the list of articles.
-        """
-        return self.articles
-
-
-class Metadata(TypedDict):
-    """
-    TypedDict for Article metadata.
-    """
-    title: str
-    timestamp: Optional[datetime]
-    category: Optional[str]
-    tags: Optional[List[str]]
+from typing import List, Optional
 
 
 class Article:
     """
-    Class representing an article.
+    Article class representing a blog article.
     """
-    filename: str
-    raw_content = []
-    content = ''
-    metadata: Metadata = {
-        'title': '',
-        'timestamp': None,
-        'category': 'uncategorized',
-        'tags': [],
-    }
-    first_part: List[str] = []
-    last_part: List[str] = []
 
     def __init__(self, filename: str):
         """
-        Initialize the article object.
+        Initialize the Article instance with a filename.
         """
-        self.filename = filename
+        self.src_filename = filename
+        self.dst_filename: str = ''
+        self.dst_file_path: str = ''
+        self._raw_content: List[str] = []
+        self.title: str = ''
+        self.metadata: dict = {}
+        self.date: Optional[str] = None
+        self.category: Optional[str] = 'uncategorized'
+        self.summary: List[str] = []
+        self.card_image: str = ''
+        self.article: List[str] = []
+        self.see_more: List[str] = []
 
-    def open(self):
+    def read(self) -> None:
         """
-        Open the article file and read its content.
+        Read the article file and store its raw content.
         """
-        with open(self.filename, 'r', encoding='utf-8') as file:
-            for line in file:
-                self.raw_content.append(line.strip())
+        mode = ''
+        with open(self.src_filename, 'r', encoding='utf-8') as file:
+            for line in file.readlines():
+                line = line.rstrip('\n')
+                if line.startswith('# '):
+                    mode = 'metadata'
+                elif line.startswith('## summary'):
+                    mode = 'summary'
+                elif line.startswith('## article'):
+                    mode = 'article'
+                elif line.startswith('## see more'):
+                    mode = 'see more'
 
-    def read(self):
+                if mode == 'metadata':
+                    match = re.match(r'^\* (\w+): (.*)$', line)
+                    if match:
+                        key, value = match.groups()
+                        self.metadata[key] = value
+                        if key == 'title':
+                            self.title = value
+                        elif key == 'filename':
+                            self.filename = value
+                        elif key == 'date':
+                            self.date = value
+                elif mode == 'summary':
+                    if line and not line.startswith('## '):
+                        self.summary.append(line)
+                elif mode == 'article':
+                    if line and not line.startswith('## '):
+                        self.article.append(line)
+                elif mode == 'see more':
+                    if line and not line.startswith('## '):
+                        self.see_more.append(line)
+
+        # if date metadata is not set, use today's date
+        if not self.date:
+            self.date = date.today().strftime('%Y%m%d')
+
+        # get destination filename
+        self.dst_file_path = (
+            os.environ.get('DEST_PATH', '.') + '/' +
+            self.date + '-' +
+            self.dst_filename + '.html'
+        )
+
+    def check_modified(self) -> bool:
         """
-        Read the article content and metadata.
+        Check if the article has been modified.
         """
-        self._read_metadata()
-        self._remove_comments()
-        self._read_content()
 
-    def _read_metadata(self):
+        # get destination filename and that file's mtime
+        if os.path.exists(self.dst_filename):
+            if os.path.getmtime(self.dst_filename) < os.path.getmtime(self.src_filename):
+                return True
+
+        # when newer than dst file, update dst file
+        return False
+
+    def make_summary(self) -> str:
         """
-        read metadata are defined in the first lines of the file.
-
-        metadata keys are:
-        - 'title', 'timestamp', 'category', and 'tags'.
-
-        metadata are defined in the following format:
-        name (key) and value are separated by at least one space and tab.
-        for example:
-        title I am a cat
-        timestamp 2025/04/03 12:00
-        category cat
-        tags cat, animal, pet
-
-        timestamp is in ISO format.
-        (timestamp.isoformat() is used to convert the timestamp to ISO format)
-        category is optional.
-        tags are optional.
-
-        metadata is read until an empty line is found.
+        Make the short summary text for "og:description" metadata and other uses.
         """
-        for line in self.raw_content:
-            # Read the first line of the file
+        summary = self._paragraphize(self.summary, remove_tag=True)
+        summary = self._remove_comments(summary)
+        summary = self._remove_tags(summary)
+
+        return summary
+
+    def make_article(self) -> str:
+        """
+        Make the article HTML.
+        """
+        article = self._paragraphize(self.article)
+        article = self._remove_comments(article)
+        article = self._decorate(article)
+
+        return article
+
+    def _paragraphize(self, lines: List[str], remove_tag: bool = False) -> str:
+        """
+        Convert lines into html paragraphs.
+        blank lines are treated as paragraph breaks.
+        """
+
+        stripped_lines = []
+
+        for line in lines:
             line = line.strip()
-            if not line:
-                break
-            key, value = line.split(maxsplit=1)
-            if key == 'title':
-                self.metadata['title'] = value
-            elif key == 'timestamp':
-                try:
-                    self.metadata['timestamp'] = datetime.fromisoformat(value)
-                except ValueError:
-                    self.metadata['timestamp'] = datetime.strptime(value, '%Y/%m/%d %H:%M')
-            elif key == 'tags':
-                self.metadata['tags'] = [tag.strip() for tag in value.split(',')]
-            elif key == 'category':
-                self.metadata['category'] = value
+            if line:
+                stripped_lines.append(line)
 
-    def _remove_comments(self):
+        if remove_tag:
+            combined_string = '\n'.join(stripped_lines)
+            combined_string = combined_string.strip()
+            combined_string = re.sub(r'<.*?>', '', combined_string)
+        else:
+            combined_string = '<br>\n'.join(stripped_lines)
+            combined_string = combined_string.strip()
+            combined_string = re.sub(r'<br><br>', '</p>\n\n<p>', combined_string)
+            combined_string = '<p>' + combined_string + '</p>'
+
+        return combined_string
+
+    def _remove_comments(self, content: str) -> str:
         """
-        remove comments from the line.
-        comments are defined by <!-- and --> tags like HTML.
-        multiline comments are supported.
+        Remove comments from the string.
+        This string was combined from multiple lines.
+        Comments are enclosed in <!-- and -->.
         """
-        in_comment = False
-        remove_commented_lines = []
+        return re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
 
-        # remove comments
-        for line in self.raw_content:
-            if '<!--' in line:
-                if '-->' in line:
-                    line = re.sub(r'<!--.*-->', '', line, flags=re.DOTALL)
-                else:
-                    line = re.sub(r'<!--.*', '', line)
-                    in_comment = True
-                remove_commented_lines.append(line)
-                continue
-            if in_comment:
-                if '-->' in line:
-                    in_comment = False
-                    line = re.sub(r'.*-->', '', line, flags=re.DOTALL)
-                else:
-                    line = ''
-            remove_commented_lines.append(line)
-        self.raw_content = remove_commented_lines
-
-    def _read_content(self):
+    def _remove_tags(self, content: str) -> str:
         """
-        Parse the article content and convert it to HTML.
+        Remove HTML tags from the string.
         """
+        return re.sub(r'<.*?>', '', content)
 
-        # Decorate the raw content with HTML tags like markdown
-        raw_content = self._decorate_content(self.raw_content)
-        # Parse the article content and convert it to HTML.
-        paragraphs = self._parse_paragraph(raw_content)
-        # Align the paragraphs based on the alignment syntax
-        paragraphs = self._align_paragraphs(paragraphs)
-
-    def _decorate_content(self, raw_content: List[str]) -> List[str]:
+    def _decorate(self, content: str) -> str:
         """
-        Decorate the raw content with HTML tags.
-        Some markdown syntax is supported.
-
-        The following markdown syntax is supported:
-        - **string** : bold
-        - `code` : code
-        - [alt text](url) : link
-        - ![alt text](url) : image
-
-        Followings are original syntax:
-        - ^^^string^^^ : emphasis text by css "text-emphasis-style: dot"
-        - ^^type^^string^^^ : same as above but with a custom (type) emphasis style
-        - ~~string~~ : strikethrough
-        - ||string||ruby string|| : ruby
+        Decorate markdown-like syntax in the string.
+        see SPEC.md for details.
         """
-        decorated_content = [
-            re.sub(r'\|\|(.+?)\|\|(.+?)\|\|', r'<ruby>\1<rp>\(<rt>\2</rt><rp>\)</rp></ruby>',
-            re.sub(r'~~(.*?)~~', r'<del>\1</del>',
-            re.sub(r'\^\^(.+?)\^\^\(.+?)\^\^', r'<span class="text-emphasis-style: \1">\2</span>',
-            re.sub(r'\^\^\^(.*?)\^\^\^', r'<span class="text-emphasis-style: dot">\1</span>',
-            re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1">',
-            re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2">\1</a>',
-            re.sub(r'`(.*?)`', r'<code>\1</code>',
-            re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line))))))))
-            for line in raw_content
-        ]
-        return decorated_content
-
-    def _parse_paragraph(self, raw_content: List[str]) -> List[str]:
-        """
-        Parse a paragraph from the raw content.
-        """
-        paragraphs: List[str] = []
-        current_paragraph: List[str] = []
-
-        # Parse Paragraph
-        for line in raw_content:
-            # Note: lines in raw_content are already stripped of leading and trailing whitespace
-            if not line:
-                if current_paragraph:
-                    paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
-                    current_paragraph = []
-            else:
-                if line.startswith('>>>'):  # start of blockquote
-                    # flush current paragraph before starting a blockquote
-                    if current_paragraph:
-                        paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
-                        current_paragraph = []
-                    paragraphs.append('<blockquote>')
-                elif line.startswith('<<<'):  # end of blockquote
-                    if current_paragraph:
-                        paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
-                        current_paragraph = []
-                    paragraphs.append('</blockquote>')
-                elif line.startswith('---'):  # horizontal rule
-                    paragraphs.append('<hr>')
-                else:
-                    current_paragraph.append(line.strip())
-
-        # add the last paragraph if it exists
-        if current_paragraph:
-            paragraphs.append('<p>' + '<br>'.join(current_paragraph) + '</p>')
-
-        # convert paragraphs to HTML
-        html_paragraphs = [
-            f'<p>{paragraph}</p>' for paragraph in paragraphs
-        ]
-        return html_paragraphs
-
-    def _align_paragraphs(self, html_paragraphs: List[str]) -> List[str]:
-        """
-        Align paragraphs based on the alignment syntax.
-        <p>=< : left aligned
-        <p>=| : center aligned
-        <p>=> : right aligned
-        """
-        aligned_paragraphs = []
-
-        for paragraph in html_paragraphs:
-            if paragraph.startswith('<p>='):
-                if paragraph.startswith('<p>=>'):
-                    paragraph = paragraph.replace('<p>=>', '<p class="right">')
-                elif paragraph.startswith('<p>=|'):
-                    paragraph = paragraph.replace('<p>=|', '<p class="center">')
-                elif paragraph.startswith('<p>=<'):
-                    # default is left aligned
-                    paragraph = paragraph.replace('<p>=<', '<p>')
-            aligned_paragraphs.append(paragraph)
-
-        return aligned_paragraphs
-
-    def _divide_parts(self, paragraphs: List[str]) -> List[str]:
-        """
-        Divide the article into parts.
-        """
-        in_first_part = True
-
-        for paragraph in paragraphs:
-            if paragraph.startswith('<p>:break'):
-                if in_first_part:
-                    in_first_part = False
-                    continue
-            else:
-                if in_first_part:
-                    self.first_part.append(paragraph)
-                else:
-                    self.last_part.append(paragraph)
-        return self.first_part + self.last_part
+        content = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content)
+        content = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content)
+        return content
