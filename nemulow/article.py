@@ -10,6 +10,8 @@ import os
 import re
 from typing import List, Optional
 
+from decorate import Decorate
+
 
 class Article:
     """
@@ -129,6 +131,39 @@ class Article:
 
         return article
 
+    def _blockquote_paragraphize(self, lines: List[str]) -> str:
+        """
+        Convert lines into html paragraphs, with special handling for blockquotes.
+        blank lines are treated as paragraph breaks.
+        """
+
+        stripped_lines = []
+        in_blockquote = False
+
+        for line in lines:
+            line = line.strip()
+            if line.startswith('>'):
+                if not in_blockquote:
+                    in_blockquote = True
+                    stripped_lines.append('<blockquote>')
+                stripped_lines.append(line[1:].strip())
+            else:
+                if in_blockquote:
+                    in_blockquote = False
+                    stripped_lines.append('</blockquote>')
+                if line:
+                    stripped_lines.append(line)
+
+        if in_blockquote:
+            stripped_lines.append('</blockquote>')
+
+        combined_string = '<br>\n'.join(stripped_lines)
+        combined_string = combined_string.strip()
+        combined_string = re.sub(r'<br><br>', '</p>\n\n<p>', combined_string)
+        combined_string = '<p>' + combined_string + '</p>'
+
+        return combined_string
+
     def _paragraphize(self, lines: List[str], remove_tag: bool = False) -> str:
         """
         Convert lines into html paragraphs.
@@ -139,6 +174,19 @@ class Article:
 
         for line in lines:
             line = line.strip()
+
+            if line.startswith('>>>') and line.endswith('<<<'):
+                # handle text align center
+                line = line[3:-3].strip()
+                line = f'<p style="text-align: center;">{line}</p>'
+            elif line.startswith('>>>'):
+                # handle text align right
+                line = line[3:].strip()
+                line = f'<p style="text-align: right;">{line}</p>'
+            elif line.startswith('---'):
+                # handle horizontal rule
+                line = '<hr>'
+
             if line:
                 stripped_lines.append(line)
 
@@ -173,6 +221,5 @@ class Article:
         Decorate markdown-like syntax in the string.
         see SPEC.md for details.
         """
-        content = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content)
-        content = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content)
+        # content = Decorate().decorate(content)
         return content
