@@ -8,8 +8,6 @@ Specifications for this module are defined in the SPEC.md file.
 
 import os
 import re
-from datetime import date
-
 from typing import List, Optional
 
 
@@ -24,29 +22,35 @@ class Article:
         """
         self.src_filename = filename
         self.dst_filename: str = ''
-        self.dst_file_path: str = ''
-        self._raw_content: List[str] = []
         self.title: str = ''
         self.metadata: dict = {}
-        self.date: Optional[str] = None
-        self.category: Optional[str] = 'uncategorized'
-        self.summary: List[str] = []
-        self.card_image: str = ''
+        self.date: str
+        self.labels: List[str] = []
+        self.summary: Optional[str] = None
+        self.card_image: Optional[str] = None
         self.article: List[str] = []
         self.see_more: List[str] = []
 
-    def read(self) -> None:
+    def read(self) -> bool:
         """
         Read the article file and store its raw content.
         """
+
+        # get date and title from the source filename
+        # # e.g. 20230101-sample-article.md -> date: 20230101, title: sample-article
+        # if date metadata is set in the file, it will override the date from the filename
+        match = re.match(r'^(\d{8})-(.*?)\.md$', os.path.basename(self.src_filename))
+        if match:
+            self.date, self.title = match.groups()
+        else:
+            return False
+
         mode = ''
         with open(self.src_filename, 'r', encoding='utf-8') as file:
             for line in file.readlines():
                 line = line.rstrip('\n')
                 if line.startswith('# '):
                     mode = 'metadata'
-                elif line.startswith('## summary'):
-                    mode = 'summary'
                 elif line.startswith('## article'):
                     mode = 'article'
                 elif line.startswith('## see more'):
@@ -57,15 +61,18 @@ class Article:
                     if match:
                         key, value = match.groups()
                         self.metadata[key] = value
-                        if key == 'title':
-                            self.title = value
-                        elif key == 'filename':
-                            self.filename = value
+                        if key == 'filename':
+                            self.dst_filename = value
                         elif key == 'date':
                             self.date = value
-                elif mode == 'summary':
-                    if line and not line.startswith('## '):
-                        self.summary.append(line)
+                        elif key == 'summary':
+                            self.summary = value
+                        elif key == 'card_image':
+                            self.card_image = value
+                        elif key == 'labels':
+                            self.labels = [label.strip() for label in value.split(',')]
+                        else:
+                            self.metadata[key] = value
                 elif mode == 'article':
                     if line and not line.startswith('## '):
                         self.article.append(line)
@@ -73,16 +80,31 @@ class Article:
                     if line and not line.startswith('## '):
                         self.see_more.append(line)
 
-        # if date metadata is not set, use today's date
-        if not self.date:
-            self.date = date.today().strftime('%Y%m%d')
+        if not self.labels:
+            self.labels = ['Uncategorized']
 
-        # get destination filename
-        self.dst_file_path = (
+        # parse date to create date_path
+        # e.g. 20230915 -> 2023/0915
+        match = re.match(r'^(\d{4})(\d{4})$', self.date)
+        date_path = ''
+        if match:
+            date_path = match.group(1) + '/' + match.group(2)
+
+        # set destination filename
+        # for example, if date is 20230101 and destination filename is output-sample-article
+        # then the destination filename will be 2023/0101/output-sample-article.html
+        if not self.dst_filename:
+            # if filename metadata is not set, use the title from the filename
+            # highly recommended to set filename metadata
+            self.dst_filename = self.title
+
+        self.dst_filename = (
             os.environ.get('DEST_PATH', '.') + '/' +
-            self.date + '-' +
+            date_path + '-' +
             self.dst_filename + '.html'
         )
+
+        return True
 
     def check_modified(self) -> bool:
         """
@@ -96,16 +118,6 @@ class Article:
 
         # when newer than dst file, update dst file
         return False
-
-    def make_summary(self) -> str:
-        """
-        Make the short summary text for "og:description" metadata and other uses.
-        """
-        summary = self._paragraphize(self.summary, remove_tag=True)
-        summary = self._remove_comments(summary)
-        summary = self._remove_tags(summary)
-
-        return summary
 
     def make_article(self) -> str:
         """
