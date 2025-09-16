@@ -18,11 +18,11 @@ class Article:
     Article class representing a blog article.
     """
 
-    def __init__(self, filename: str):
+    def __init__(self, src_filename: str):
         """
         Initialize the Article instance with a filename.
         """
-        self.src_filename = filename
+        self.src_filename = src_filename
         self.dst_filename: str = ''
         self.title: str = ''
         self.metadata: dict = {}
@@ -112,101 +112,55 @@ class Article:
         """
         Check if the article has been modified.
         """
-
-        # get destination filename and that file's mtime
         if os.path.exists(self.dst_filename):
             if os.path.getmtime(self.dst_filename) < os.path.getmtime(self.src_filename):
                 return True
-
-        # when newer than dst file, update dst file
         return False
 
-    def make_article(self) -> str:
+    def _paragraphize(self, lines: List[str]) -> List[str]:
         """
-        Make the article HTML.
-        """
-        article = self._paragraphize(self.article)
-        article = self._remove_comments(article)
-        article = self._decorate(article)
-
-        return article
-
-    def _blockquote_paragraphize(self, lines: List[str]) -> str:
-        """
-        Convert lines into html paragraphs, with special handling for blockquotes.
+        lines to paragraphs.
         blank lines are treated as paragraph breaks.
         """
 
-        stripped_lines = []
-        in_blockquote = False
+        paragraphs = []
+        tmp_paragraph = []
 
         for line in lines:
             line = line.strip()
-            if line.startswith('>'):
-                if not in_blockquote:
-                    in_blockquote = True
-                    stripped_lines.append('<blockquote>')
-                stripped_lines.append(line[1:].strip())
+            if not line:
+                if tmp_paragraph:
+                    paragraphs.append('\n'.join(tmp_paragraph))
+                    tmp_paragraph = []
             else:
-                if in_blockquote:
-                    in_blockquote = False
-                    stripped_lines.append('</blockquote>')
-                if line:
-                    stripped_lines.append(line)
+                tmp_paragraph.append(line)
 
-        if in_blockquote:
-            stripped_lines.append('</blockquote>')
+        if tmp_paragraph:
+            paragraphs.append('\n'.join(tmp_paragraph))
 
-        combined_string = '<br>\n'.join(stripped_lines)
-        combined_string = combined_string.strip()
-        combined_string = re.sub(r'<br><br>', '</p>\n\n<p>', combined_string)
-        combined_string = '<p>' + combined_string + '</p>'
+        for paragraph in paragraphs:
+            if not paragraph:
+                continue
+            if paragraph.startswith('>><<'):
+                paragraph = paragraph[4:].strip()
+                paragraph = f'<p style="text-align: center;">{paragraph}</p>'
+            elif paragraph.startswith('>>>>'):
+                paragraph = paragraph[4:].strip()
+                paragraph = f'<p style="text-align: right;">{paragraph}</p>'
+            elif paragraph == '---':
+                paragraph = '<hr>'
+            elif paragraph.startswith('"""') and paragraph.endswith('"""'):
+                paragraph = paragraph[3:-3].strip()
+                paragraph = f'<blockquote>{paragraph}</blockquote>'
+            else:
+                paragraph = f'<p>{paragraph}</p>'
+            paragraph = re.sub(r'\n+', '<br>\n', paragraph)
 
-        return combined_string
-
-    def _paragraphize(self, lines: List[str], remove_tag: bool = False) -> str:
-        """
-        Convert lines into html paragraphs.
-        blank lines are treated as paragraph breaks.
-        """
-
-        stripped_lines = []
-
-        for line in lines:
-            line = line.strip()
-
-            if line.startswith('>>>') and line.endswith('<<<'):
-                # handle text align center
-                line = line[3:-3].strip()
-                line = f'<p style="text-align: center;">{line}</p>'
-            elif line.startswith('>>>'):
-                # handle text align right
-                line = line[3:].strip()
-                line = f'<p style="text-align: right;">{line}</p>'
-            elif line.startswith('---'):
-                # handle horizontal rule
-                line = '<hr>'
-
-            if line:
-                stripped_lines.append(line)
-
-        if remove_tag:
-            combined_string = '\n'.join(stripped_lines)
-            combined_string = combined_string.strip()
-            combined_string = re.sub(r'<.*?>', '', combined_string)
-        else:
-            combined_string = '<br>\n'.join(stripped_lines)
-            combined_string = combined_string.strip()
-            combined_string = re.sub(r'<br><br>', '</p>\n\n<p>', combined_string)
-            combined_string = '<p>' + combined_string + '</p>'
-
-        return combined_string
+        return paragraphs
 
     def _remove_comments(self, content: str) -> str:
         """
         Remove comments from the string.
-        This string was combined from multiple lines.
-        Comments are enclosed in <!-- and -->.
         """
         return re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
 
@@ -214,12 +168,12 @@ class Article:
         """
         Remove HTML tags from the string.
         """
-        return re.sub(r'<.*?>', '', content)
+        return re.sub(r'<.*?>', '', content, flags=re.DOTALL)
 
     def _decorate(self, content: str) -> str:
         """
         Decorate markdown-like syntax in the string.
         see SPEC.md for details.
         """
-        # content = Decorate().decorate(content)
+        content = Decorate().decorate(content)
         return content
