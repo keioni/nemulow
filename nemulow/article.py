@@ -8,7 +8,7 @@ Specifications for this module are defined in the SPEC.md file.
 
 import os
 import re
-from typing import List, Optional
+from typing import List
 
 from decorate import Decorate
 
@@ -22,14 +22,16 @@ class Article:
         """
         Initialize the Article instance with a filename.
         """
-        self.src_filename = src_filename
-        self.dst_filename: str = ''
+        self.src_filename: str = src_filename
         self.title: str = ''
-        self.metadata: dict = {}
-        self.date: str
-        self.labels: List[str] = []
-        self.summary: Optional[str] = None
-        self.card_image: Optional[str] = None
+        self.date: str = ''
+        self.metadata: dict = {
+            'filename': '',
+            'updated_at': '',
+            'summary': None,
+            'card_image': None,
+            'labels': '',
+        }
         self.article: List[str] = []
         self.see_more: List[str] = []
 
@@ -39,11 +41,16 @@ class Article:
         """
 
         # get date and title from the source filename
-        # # e.g. 20230101-sample-article.md -> date: 20230101, title: sample-article
-        # if date metadata is set in the file, it will override the date from the filename
+        # e.g. 20230101-sample-article.md -> date: 20230101, title: sample-article
         match = re.match(r'^(\d{8})-(.*?)\.md$', os.path.basename(self.src_filename))
         if match:
             self.date, self.title = match.groups()
+            match = re.match(r'^(\d{4})(\d{2})(\d{2})$', self.date)
+            if match:
+                # used for destination filename
+                year, month, day = match.groups()
+            else:
+                return False
         else:
             return False
 
@@ -53,59 +60,34 @@ class Article:
                 line = line.rstrip('\n')
                 if line.startswith('# '):
                     mode = 'metadata'
+                    continue
                 elif line.startswith('## article'):
                     mode = 'article'
+                    continue
                 elif line.startswith('## see more'):
                     mode = 'see more'
+                    continue
 
                 if mode == 'metadata':
                     match = re.match(r'^\* (\w+): (.*)$', line)
                     if match:
                         key, value = match.groups()
                         self.metadata[key] = value
-                        if key == 'filename':
-                            self.dst_filename = value
-                        elif key == 'date':
-                            self.date = value
-                        elif key == 'summary':
-                            self.summary = value
-                        elif key == 'card_image':
-                            self.card_image = value
-                        elif key == 'labels':
-                            self.labels = [label.strip() for label in value.split(',')]
-                        else:
-                            self.metadata[key] = value
                 elif mode == 'article':
-                    if line and not line.startswith('## '):
-                        self.article.append(line)
+                    self.article.append(line)
                 elif mode == 'see more':
-                    if line and not line.startswith('## '):
-                        self.see_more.append(line)
-
-        if not self.labels:
-            self.labels = ['Uncategorized']
-
-        # parse date to create date_path
-        # e.g. 20230915 -> 2023/0915
-        match = re.match(r'^(\d{4})(\d{4})$', self.date)
-        date_path = ''
-        if match:
-            date_path = match.group(1) + '/' + match.group(2)
+                    self.see_more.append(line)
 
         # set destination filename
-        # for example, if date is 20230101 and destination filename is output-sample-article
-        # then the destination filename will be 2023/0101/output-sample-article.html
-        if not self.dst_filename:
-            # if filename metadata is not set, use the title from the filename
-            # highly recommended to set filename metadata
-            self.dst_filename = self.title
-
+        # for example, if date is 20230101 and title is output-sample-article
+        # then the destination filename will be 2023/0101-output-sample-article.html
+        # if filename metadata is not set, use the title from the source filename.
+        # HIGHLY recommended to set "filename" metadata.
+        self.title = self.metadata.get('filename', self.title)
         self.dst_filename = (
-            os.environ.get('DEST_PATH', '.') + '/' +
-            date_path + '-' +
-            self.dst_filename + '.html'
+            os.environ.get('DEST_PATH', '.') +
+            f'/{year}/{month}{day}-{self.title}.html'
         )
-
         return True
 
     def check_modified(self) -> bool:
@@ -175,5 +157,4 @@ class Article:
         Decorate markdown-like syntax in the string.
         see SPEC.md for details.
         """
-        content = Decorate().decorate(content)
-        return content
+        return Decorate().decorate(content)
