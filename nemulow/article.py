@@ -8,9 +8,9 @@ Specifications for this module are defined in the SPEC.md file.
 
 import os
 import re
-from datetime import date
+from typing import List
 
-from typing import List, Optional
+from decorate import Decorate
 
 
 class Article:
@@ -18,135 +18,131 @@ class Article:
     Article class representing a blog article.
     """
 
-    def __init__(self, filename: str):
+    def __init__(self, src_filename: str):
         """
         Initialize the Article instance with a filename.
         """
-        self.src_filename = filename
-        self.dst_filename: str = ''
-        self.dst_file_path: str = ''
-        self._raw_content: List[str] = []
+        self.src_filename: str = src_filename
         self.title: str = ''
-        self.metadata: dict = {}
-        self.date: Optional[str] = None
-        self.category: Optional[str] = 'uncategorized'
-        self.summary: List[str] = []
-        self.card_image: str = ''
+        self.date: str = ''
+        self.metadata: dict = {
+            'filename': '',
+            'updated_at': '',
+            'summary': None,
+            'card_image': None,
+            'labels': '',
+        }
         self.article: List[str] = []
         self.see_more: List[str] = []
 
-    def read(self) -> None:
+    def read(self) -> bool:
         """
         Read the article file and store its raw content.
         """
+
+        # get date and title from the source filename
+        # e.g. 20230101-sample-article.md -> date: 20230101, title: sample-article
+        match = re.match(r'^(\d{8})-(.*?)\.md$', os.path.basename(self.src_filename))
+        if match:
+            self.date, self.title = match.groups()
+            match = re.match(r'^(\d{4})(\d{2})(\d{2})$', self.date)
+            if match:
+                # used for destination filename
+                year, month, day = match.groups()
+            else:
+                return False
+        else:
+            return False
+
         mode = ''
         with open(self.src_filename, 'r', encoding='utf-8') as file:
             for line in file.readlines():
                 line = line.rstrip('\n')
                 if line.startswith('# '):
                     mode = 'metadata'
-                elif line.startswith('## summary'):
-                    mode = 'summary'
+                    continue
                 elif line.startswith('## article'):
                     mode = 'article'
+                    continue
                 elif line.startswith('## see more'):
                     mode = 'see more'
+                    continue
 
                 if mode == 'metadata':
                     match = re.match(r'^\* (\w+): (.*)$', line)
                     if match:
                         key, value = match.groups()
                         self.metadata[key] = value
-                        if key == 'title':
-                            self.title = value
-                        elif key == 'filename':
-                            self.filename = value
-                        elif key == 'date':
-                            self.date = value
-                elif mode == 'summary':
-                    if line and not line.startswith('## '):
-                        self.summary.append(line)
                 elif mode == 'article':
-                    if line and not line.startswith('## '):
-                        self.article.append(line)
+                    self.article.append(line)
                 elif mode == 'see more':
-                    if line and not line.startswith('## '):
-                        self.see_more.append(line)
+                    self.see_more.append(line)
 
-        # if date metadata is not set, use today's date
-        if not self.date:
-            self.date = date.today().strftime('%Y%m%d')
-
-        # get destination filename
-        self.dst_file_path = (
-            os.environ.get('DEST_PATH', '.') + '/' +
-            self.date + '-' +
-            self.dst_filename + '.html'
+        # set destination filename
+        # for example, if date is 20230101 and title is output-sample-article
+        # then the destination filename will be 2023/0101-output-sample-article.html
+        # if filename metadata is not set, use the title from the source filename.
+        # HIGHLY recommended to set "filename" metadata.
+        self.title = self.metadata.get('filename', self.title)
+        self.dst_filename = (
+            os.environ.get('DEST_PATH', '.') +
+            f'/{year}/{month}{day}-{self.title}.html'
         )
+        return True
 
     def check_modified(self) -> bool:
         """
         Check if the article has been modified.
         """
-
-        # get destination filename and that file's mtime
         if os.path.exists(self.dst_filename):
             if os.path.getmtime(self.dst_filename) < os.path.getmtime(self.src_filename):
                 return True
-
-        # when newer than dst file, update dst file
         return False
 
-    def make_summary(self) -> str:
+    def _paragraphize(self, lines: List[str]) -> List[str]:
         """
-        Make the short summary text for "og:description" metadata and other uses.
-        """
-        summary = self._paragraphize(self.summary, remove_tag=True)
-        summary = self._remove_comments(summary)
-        summary = self._remove_tags(summary)
-
-        return summary
-
-    def make_article(self) -> str:
-        """
-        Make the article HTML.
-        """
-        article = self._paragraphize(self.article)
-        article = self._remove_comments(article)
-        article = self._decorate(article)
-
-        return article
-
-    def _paragraphize(self, lines: List[str], remove_tag: bool = False) -> str:
-        """
-        Convert lines into html paragraphs.
+        lines to paragraphs.
         blank lines are treated as paragraph breaks.
         """
 
-        stripped_lines = []
+        paragraphs = []
+        tmp_paragraph = []
 
         for line in lines:
             line = line.strip()
-            if line:
-                stripped_lines.append(line)
+            if not line:
+                if tmp_paragraph:
+                    paragraphs.append('\n'.join(tmp_paragraph))
+                    tmp_paragraph = []
+            else:
+                tmp_paragraph.append(line)
 
-        if remove_tag:
-            combined_string = '\n'.join(stripped_lines)
-            combined_string = combined_string.strip()
-            combined_string = re.sub(r'<.*?>', '', combined_string)
-        else:
-            combined_string = '<br>\n'.join(stripped_lines)
-            combined_string = combined_string.strip()
-            combined_string = re.sub(r'<br><br>', '</p>\n\n<p>', combined_string)
-            combined_string = '<p>' + combined_string + '</p>'
+        if tmp_paragraph:
+            paragraphs.append('\n'.join(tmp_paragraph))
 
-        return combined_string
+        for paragraph in paragraphs:
+            if not paragraph:
+                continue
+            if paragraph.startswith('>><<'):
+                paragraph = paragraph[4:].strip()
+                paragraph = f'<p style="text-align: center;">{paragraph}</p>'
+            elif paragraph.startswith('>>>>'):
+                paragraph = paragraph[4:].strip()
+                paragraph = f'<p style="text-align: right;">{paragraph}</p>'
+            elif paragraph == '---':
+                paragraph = '<hr>'
+            elif paragraph.startswith('"""') and paragraph.endswith('"""'):
+                paragraph = paragraph[3:-3].strip()
+                paragraph = f'<blockquote>{paragraph}</blockquote>'
+            else:
+                paragraph = f'<p>{paragraph}</p>'
+            paragraph = re.sub(r'\n+', '<br>\n', paragraph)
+
+        return paragraphs
 
     def _remove_comments(self, content: str) -> str:
         """
         Remove comments from the string.
-        This string was combined from multiple lines.
-        Comments are enclosed in <!-- and -->.
         """
         return re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
 
@@ -154,13 +150,11 @@ class Article:
         """
         Remove HTML tags from the string.
         """
-        return re.sub(r'<.*?>', '', content)
+        return re.sub(r'<.*?>', '', content, flags=re.DOTALL)
 
     def _decorate(self, content: str) -> str:
         """
         Decorate markdown-like syntax in the string.
         see SPEC.md for details.
         """
-        content = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content)
-        content = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content)
-        return content
+        return Decorate().decorate(content)
